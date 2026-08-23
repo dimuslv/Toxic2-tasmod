@@ -25,7 +25,6 @@ class Main
 		_root.popup_holder.stopped = true;
 		TAS.levelInit();
 		Utils.levelInit();
-		Main.stopAll();
 	}
 	
 	static function metaUpdate() {
@@ -37,7 +36,7 @@ class Main
 		
 		if (!TAS.frozen) {
 			// Guarantees that there is something to play!
-			if (!TAS.write && (TAS.isAtStringEnd())) {
+			if (!TAS.write && TAS.isAtStringEnd()) {
 				TAS.frozen = true;
 			} else {
 				Main.gameUpdate();

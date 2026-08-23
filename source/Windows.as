@@ -42,7 +42,7 @@ class Windows
 		w._visible = false;
 		
 		w.createTextField("testField", w.getNextHighestDepth(), 0, 0, 0, 0);
-		w._visible = false;
+		w.testField._visible = false;
 		
 		TAS.inputField = w.inputField;
 		

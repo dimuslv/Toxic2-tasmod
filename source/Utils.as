@@ -16,7 +16,6 @@ class Utils
 	static var testVisibilities;
 	static var laserState = 1;
 	static var conveyorsOn = true;
-	static var skipBeginning = true;
 	static var autoScroll = true;
 	static var screenshake = true;
 	static var collisionQueryBitmap;
@@ -197,8 +196,7 @@ class Utils
 			"Invulnerability", Utils, "invulnerable",
 			"No death", Utils, "noDeath",
 			"Wrong physics", Utils, "inaccuratePhysics",
-			"Deactivate teleport", Utils, "deactivateTeleport",
-			"Skip beginning", Utils, "skipBeginning"
+			"Deactivate teleport", Utils, "deactivateTeleport"
 		]);
 		
 		Utils.addCycleOption(obj.options, "Lasers", Utils, "laserState", ["off", "on", "simple"]);

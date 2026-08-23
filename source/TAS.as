@@ -3,7 +3,7 @@ class TAS
 	static var write = true;
 	static var override = true;
 	static var frozen = false;
-	static var curString = "";
+	static var curString = "109";
 	
 	static var curIndex = 0;
 	static var curFrame = 0;
@@ -14,12 +14,12 @@ class TAS
 	static var inputArray = ["i"];
 	static var valueArray = [0];
 	static var indArray = [-1];
-	static var endIndArray = [0];
+	static var endIndArray = [3];
 	static var codeObj = {};
 	static var ghostData = [];
+	static var beginningFrames = 109;
 	
 	static var fastPlayback = false;
-	static var neutralPlayback = false;
 	static var saveStates = [];
 	static var ghostVisible = [];
 	static var justPlacedBombs;
@@ -31,7 +31,7 @@ class TAS
 	static var bombsThrownThisFrame = 0;
 	
 	static var inputField;
-	static var targetFrame = 0;
+	static var targetFrame = -Infinity;
 	static var delayedCaretPos = -1;
 	static var lastCaretPos = -1;
 	static var delayedFun = null;
@@ -52,8 +52,6 @@ class TAS
 	
 	static var UP_PRESSED = false;
 	static var DOWN_PRESSED = false;
-	
-	static var runBack = false;
 	
 	static var subLetters = "rbjJPh";
 	static var fullLetters = "qweasdQWEADnp";
@@ -270,17 +268,11 @@ class TAS
 				i *= 5;
 			}
 			
-			TAS.fastPlayback = true;
-			while (i > 0 && (TAS.write || !TAS.isAtStringEnd())) {
-				if (i == 1)
-					TAS.fastPlayback = false;
-				Main.gameUpdate();
-				i--;
+			if (TAS.write) {
+				TAS.skipToFrame(TAS.totalFrame + i);
+			} else {
+				TAS.skipToFrame(Math.min(TAS.totalFrame + i, TAS.totalLength));
 			}
-			TAS.fastPlayback = false;
-			
-			TAS.updateText();
-			Main.stopAll();
 		} else if (code == 188 || code == 76 || code == 74) { //, l j
 			if (code != 74)
 				TAS.frozen = true;
@@ -291,13 +283,14 @@ class TAS
 				i *= 5;
 			}
 			
-			if (TAS.totalFrame > 0) {
-				TAS.totalFrame = Math.max(0, TAS.totalFrame - i);
-				
+			if (TAS.totalFrame > -TAS.beginningFrames) {
 				if (TAS.write)
-					TAS.delayedFun = TAS.truncateCurArray;
+					TAS.delayedFun = function() {
+						TAS.truncateCurArray();
+						TAS.updateText();
+					};
 				
-				TAS.runBack = true;
+				TAS.targetFrame = Math.max(-TAS.beginningFrames, TAS.totalFrame - i);
 				_root.tt.doTween("reload");
 			}
 			
@@ -349,6 +342,9 @@ class TAS
 	}
 
 	static function truncateCurArray() {
+		if (TAS.isAtStringEnd())
+			return;
+		
 		TAS.inputArray.length = TAS.curIndex + 1;
 		TAS.valueArray.length = TAS.curIndex + 1;
 		TAS.indArray.length = TAS.curIndex + 1;
@@ -358,11 +354,7 @@ class TAS
 		
 		TAS.valueArray[TAS.curIndex] = TAS.curFrame;
 		if (TAS.curIndex == 0) {
-			if (TAS.indArray[0] == -1) {
-				TAS.curString = "";
-			} else {
-				TAS.curString = TAS.curString.slice(0, TAS.endIndArray[0]);
-			}
+			TAS.curString = TAS.curString.slice(0, TAS.endIndArray[0]);
 		} else {
 			TAS.curString = TAS.curString.slice(0, TAS.indArray[TAS.curIndex]) + TAS.inputArray[TAS.curIndex] + TAS.compact(TAS.curFrame);
 		}
@@ -405,6 +397,7 @@ class TAS
 		var newIndArray = [-1];
 		var newEndIndArray = [0];
 		var newString = str;
+		var beginningFrames = 0;
 		
 		var barFrame = -Infinity;
 		var caretFrame = -Infinity;
@@ -422,13 +415,11 @@ class TAS
 		
 		var firstError = null;
 		
-		var i = 0;
-		while (i < newString.length && !TAS.isSymbol(newString.charAt(i))) {
-			i++;
-		}
+		var i = -1;
+		
 		while (i < newString.length) {
 			
-			var symbol = newString.charAt(i);
+			var symbol = i === -1? "" : newString.charAt(i);
 			var pos = i;
 			var num = 0;
 			
@@ -513,7 +504,11 @@ class TAS
 			}
 			num += linNum;
 			
-			if (symbol == "|") {
+			if (symbol === "") {
+				beginningFrames = Math.min(num, 109);
+				totalFrame = -beginningFrames;
+				newEndIndArray[0] = endPos;
+			} else if (symbol == "|") {
 				barFrame = totalFrame + num;
 				i -= endPos - pos;
 				caretPos -= endPos - pos;
@@ -606,6 +601,7 @@ class TAS
 			curString: newString,
 			totalFrame: newFrame,
 			totalLength: totalFrame,
+			beginningFrames: beginningFrames,
 			offsetSetup: offsetSetup,
 			err: firstError,
 			codeObj: newCodeObj
@@ -617,9 +613,10 @@ class TAS
 		
 		var areEqual = true;
 		
-		if (TAS.totalFrame == obj.totalFrame) {
+		if (TAS.totalFrame <= obj.totalFrame && TAS.beginningFrames === obj.beginningFrames && TAS.valueArray[0] === obj.valueArray[0]) {
 			
-			for (var ind = 0, totalFrame = 0; totalFrame < TAS.totalFrame; ind++) {
+			var totalFrame = -TAS.beginningFrames;
+			for (var ind = 1; totalFrame < TAS.totalFrame; ind++) {
 				if (TAS.isFullLetter(TAS.inputArray[ind])) {
 					totalFrame += TAS.valueArray[ind];
 				}
@@ -645,16 +642,19 @@ class TAS
 		TAS.codeObj = obj.codeObj;
 		
 		TAS.curString = obj.curString;
-		TAS.totalFrame = obj.totalFrame;
 		TAS.totalLength = obj.totalLength;
+		TAS.beginningFrames = obj.beginningFrames;
 		
 		if (!areEqual) {
 			TAS.delayedFun = [TAS.updateError, obj.err, TAS.inputField];
 			
-			TAS.runBack = true;
+			TAS.targetFrame = obj.totalFrame;
 			_root.tt.doTween("reload");
 		} else {
-			TAS.updateText();
+			if (!TAS.skipToFrame(obj.totalFrame)) {
+				TAS.updateText();
+			}
+			
 			TAS.updateError(obj.err, TAS.inputField);
 		}
 	}
@@ -862,7 +862,8 @@ class TAS
 	}
 
 	static function checkKeys() {
-		if (TAS.neutralPlayback) {
+		if (TAS.totalFrame < -TAS.beginningFrames) {
+			TAS.totalFrame++;
 			return;
 		}
 		
@@ -1138,10 +1139,6 @@ class TAS
 		}
 		TAS.curFrame++;
 		TAS.totalFrame++;
-		
-		if (TAS.fastPlayback && (TAS.totalFrame == TAS.targetFrame || TAS.isAtStringEnd())) {
-			TAS.fastPlayback = false;
-		}
 	}
 	
 	static function performQueuedHit() {
@@ -1168,7 +1165,7 @@ class TAS
 	}
 	
 	static function updateGhosts() {
-		if (TAS.neutralPlayback) {
+		if (TAS.totalFrame < 0) {
 			return;
 		}
 		
@@ -1189,7 +1186,7 @@ class TAS
 		var ghost = _root.game.ghost_holder[ghostName];
 		var data = TAS.saveStates[ghostName.slice(1)].ghostData;
 		
-		var ind = Math.min((TAS.totalFrame - 1) * 4, data.length - 4);
+		var ind = Math.min(TAS.totalFrame * 4, data.length - 4);
 		
 		if (ind >= 0) {
 			ghost._x = data[ind];
@@ -1200,6 +1197,24 @@ class TAS
 			ghost.stop();
 			ghost.anim.stop();
 		}
+	}
+	
+	static function skipToFrame(frame) {
+		if (frame <= TAS.totalFrame) {
+			return false;
+		}
+		
+		TAS.fastPlayback = true;
+		while (TAS.totalFrame < frame - 1) {
+			Main.gameUpdate();
+		}
+		TAS.fastPlayback = false;
+		Main.gameUpdate();
+		
+		TAS.updateText();
+		Main.stopAll();
+		
+		return true;
 	}
 
 	static function levelInit() {
@@ -1225,13 +1240,10 @@ class TAS
 		
 		com.nitrome.toxic.Global.can_jump = true;
 		com.nitrome.toxic.Global.UP_PRESSED = false;
-		var oldWrite = TAS.write;
-		TAS.write = false;
-		TAS.targetFrame = TAS.totalFrame;
 		TAS.curIndex = 0;
 		TAS.curFrame = TAS.valueArray[0];
 		
-		TAS.totalFrame = 0;
+		TAS.totalFrame = -109;
 		
 		TAS.ghostData = [];
 		for (var i = 0; i < 10; i++) {
@@ -1240,33 +1252,27 @@ class TAS
 			}
 		}
 		
-		TAS.fastPlayback = true;
-		
 		TAS.curPattern = 3;
 		TAS.curPatternInd = 0;
 		TAS.curPatternFrame = 0;
 		
-		if (Utils.skipBeginning) {
-			TAS.neutralPlayback = true;
-			var i = 0;
-			while (i < 109) {
-				Main.gameUpdate();
-				i++;
-			}
-			TAS.neutralPlayback = false;
+		var oldWrite = TAS.write;
+		TAS.write = false;
+		
+		if (TAS.targetFrame !== -Infinity) {
+			TAS.skipToFrame(TAS.targetFrame);
+			TAS.targetFrame = -Infinity;
+		} else {
+			TAS.skipToFrame(-TAS.beginningFrames);
+		}
+
+		if (TAS.totalFrame === -109) {
+			TAS.updateText();
+			Main.stopAll();
 		}
 		
-		if (TAS.runBack) {
-			TAS.runBack = false;
-			while (TAS.totalFrame < TAS.targetFrame) {
-				Main.gameUpdate();
-			}
-		}
-		
-		TAS.fastPlayback = false;
 		TAS.write = oldWrite;
 		
-		TAS.updateText();
 		if (TAS.initOffsetInd === -1) {
 			for (var i = 3; i < TAS.offsetSetup.length; i += 4) {
 				TAS.clearOffsets(TAS.offsetSetup[i]);
