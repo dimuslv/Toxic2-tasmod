@@ -339,9 +339,7 @@ class TAS
 						_root.game.ghost_holder[ghostName].removeMovieClip();
 						TAS.ghostVisible[code-48] = false;
 					} else {
-						_root.game.ghost_holder.attachMovie("player", ghostName, code-48);
-						_root.game.ghost_holder[ghostName]._alpha = 30;
-						TAS.updateGhost(ghostName);
+						TAS.addGhost(code-48);
 						TAS.ghostVisible[code-48] = true;
 					}
 				} else {
@@ -1168,7 +1166,7 @@ class TAS
 		TAS.curFrame++;
 		TAS.totalFrame++;
 		
-		if (TAS.fastPlayback && TAS.curIndex == TAS.targetIndex && TAS.curFrame == TAS.targetFrame) {
+		if (TAS.fastPlayback && (TAS.curIndex == TAS.targetIndex && TAS.curFrame == TAS.targetFrame || TAS.isAtStringEnd())) {
 			TAS.fastPlayback = false;
 		}
 	}
@@ -1187,6 +1185,13 @@ class TAS
 		TAS.justPlacedBombs = 0;
 		
 		TAS.queuedHit = false;
+	}
+	
+	static function addGhost(num) {
+		var ghostName = "g" + num;
+		_root.game.ghost_holder.attachMovie("player", ghostName, num);
+		_root.game.ghost_holder[ghostName]._alpha = 30;
+		TAS.updateGhost(ghostName);
 	}
 	
 	static function updateGhosts() {
@@ -1218,6 +1223,9 @@ class TAS
 			ghost._y = data[ind+1];
 			ghost.gotoAndStop(data[ind+2]);
 			ghost.anim.gotoAndStop(data[ind+3]);
+		} else {
+			ghost.stop();
+			ghost.anim.stop();
 		}
 	}
 
@@ -1251,11 +1259,12 @@ class TAS
 		TAS.curIndex = 0;
 		TAS.curFrame = TAS.valueArray[0];
 		
+		TAS.totalFrame = 0;
+		
 		TAS.ghostData = [];
 		for (var i = 0; i < 10; i++) {
 			if (TAS.ghostVisible[i]) {
-				_root.game.ghost_holder.attachMovie("player", "g" + i, i);
-				_root.game.ghost_holder["g" + i]._alpha = 30;
+				TAS.addGhost(i);
 			}
 		}
 		
@@ -1274,8 +1283,6 @@ class TAS
 			}
 			TAS.neutralPlayback = false;
 		}
-		
-		TAS.totalFrame = 0;
 		
 		if (TAS.runBack) {
 			TAS.runBack = false;

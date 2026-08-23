@@ -12,6 +12,7 @@ class Code
 		vy: "vy",
 		wc: "wall_count",
 		fc: "fall_count",
+		hc: "hit_count",
 		st: "state"
 	};
 	

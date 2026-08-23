@@ -1,15 +1,20 @@
 - Collision query bitmap gets filled in initially??
-- Ghost comparisons
+- Ghost trails?
 - walljump/release-jump cleanliness indicator (by changing player color)?
 - Freeze when focus on input field
-- arbitrary expression viewer
+- arbitrary expression viewer (input field on the left, clicking on other vars copies their name)
+- jump to same time in different savestate (Ctrl+number, toggling vis could be Ctrl+Shift+number) (also this basically requires using totalFrame)
+- fast playback using totalFrame, also totalLength (needs to be changed only on string load, write and truncate, same moments when you'd disable runup), unifying fastPlayback deactivation (currently in 3 places, now 1)
+- Also maybe input string symbol lengths should be local so you wouldn't have to update them all when writing in insert mode
+- better skip beginning handling, current idea is that first number denotes how many frames before start we start, just like initial R it doesn't get disabled on resets. Do we need Skip beginning option anymore? Maybe don't skip beginning by default? (Similar to other appeals to runners)
+- optimization: not simulating lasers (in fast playback) if they deffo won't hit? (a bit problematic because lasers can get drawn e.g. pre-upwarp)
 - show var (delta) on pattern activation, or maybe as a "frame-perfect"? Second option is more expressive ig. Syntax: ?(wall_count) ?
-- runup, oninput savestates (syntax: $10, $r, ig in the same place where the savestate is? so more like $10 |d). This should work even if the runup is in the beginning animation, although might be a bit tricky to implement.
+- runup, oninput savestates (syntax: $10, $r, current idea is that $ replaces the cursor, $10 shows how many frames till reaches on runup. Writing and doing some other actions (like truncating?) would probably turn into normal mode. Acceptable to truncate string after $ because it should not be needed anyway and could make things easier). This should work even if the runup is in the beginning animation, although might be a bit tricky to implement.
 - true savestates. Saving needs to be quick (maybe savestates partly premade during standard gameplay) and they should hopefully take little space, loading can be a bit slow. Automatic savestate modes: on, only on non-standard gameplay, off. Also can change whether savestates are used? Automatic savestates are hidden in the string by default, you can press a hotkey to show them as "#". When saving a state, automatic savestates are saved if they are currently visible? Can add new automatic savestates by adding the symbol, if you remove it, I think it gets automatically added back in on next pass. Manual savestates are probably not used as helper savestates, except... if saving a state without helper savestates visible, in the saved state it itself counts as a helper savestate?
 - true savestates are identified by their compressed string. Can also compress a string just if you like (could be convenient for automatic reduction)
 - there are save slots and savestates. Each savestate needs to be linked to at least one save slot, otherwise gets deleted. Current gamestate is a save slot, as is every manual savestate slot.
 - Maybe true savestates load to the previous frame and then advance by one...
-- Use () for code-based pattern start
+- Use () for code-based pattern start (or just <> and it understands somehow? By checking if semicolon exists for instance? Nah because how to differentiate from regular ">" lol, so maybe <()>)
 - Simplest way to save preferences might be to just have a file that has code that sets the preferences when launching the mod
 - default settings and keybinds. Probably a key for showing/hiding keybinds in the menus. Click on [] and you can choose a key.
 
