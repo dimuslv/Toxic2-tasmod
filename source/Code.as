@@ -53,6 +53,14 @@ class Code
 		return ind;
 	}
 	
+	static function execute(fun) {
+		if (fun instanceof Function) {
+			fun();
+		} else if (fun instanceof Array) {
+			fun[0].apply(null, fun.slice(1));
+		}
+	}
+	
 	static function parseAngled(str, ind) {
 		
 		var obj = {_x: [0, 0], _y: [0, 0], vx: [0, 0], vy: [0, 0], state: [0, 0]};

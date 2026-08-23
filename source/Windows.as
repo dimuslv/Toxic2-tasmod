@@ -41,6 +41,9 @@ class Windows
 		w.inputField.type = "input";
 		w._visible = false;
 		
+		w.createTextField("testField", w.getNextHighestDepth(), 0, 0, 0, 0);
+		w._visible = false;
+		
 		TAS.inputField = w.inputField;
 		
 		w.inputField.onKillFocus = function(newFocus) {

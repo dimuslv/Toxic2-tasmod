@@ -8,7 +8,8 @@ class TAS
 	static var curIndex = 0;
 	static var curFrame = 0;
 	
-	static var totalFrame;
+	static var totalFrame = 0;
+	static var totalLength = 0;
 	
 	static var inputArray = ["i"];
 	static var valueArray = [0];
@@ -30,10 +31,10 @@ class TAS
 	static var bombsThrownThisFrame = 0;
 	
 	static var inputField;
-	static var targetIndex;
-	static var targetFrame;
+	static var targetFrame = 0;
 	static var delayedCaretPos = -1;
 	static var lastCaretPos = -1;
+	static var delayedFun = null;
 	
 	static var offsetField;
 	static var offsetString = "";
@@ -88,7 +89,7 @@ class TAS
 	}
 	
 	static function isAtStringEnd() {
-		return TAS.curIndex >= TAS.inputArray.length - 1 && TAS.curFrame >= TAS.valueArray[TAS.curIndex];
+		return TAS.totalFrame >= TAS.totalLength;
 	}
 	
 	static function isS(sym, str) {
@@ -290,23 +291,15 @@ class TAS
 				i *= 5;
 			}
 			
-			if (TAS.curIndex > 0) {
-				while (i > 0 && TAS.curIndex > 0) {
-					TAS.curFrame--;
-					if (TAS.curFrame <= 0) {
-						do {
-							TAS.curIndex--;
-						} while (TAS.isSubLetter(TAS.inputArray[TAS.curIndex]));
-						
-						TAS.curFrame = TAS.valueArray[TAS.curIndex];
-					}
-					i--;
-				}
+			if (TAS.totalFrame > 0) {
+				TAS.totalFrame = Math.max(0, TAS.totalFrame - i);
+				
+				if (TAS.write)
+					TAS.delayedFun = TAS.truncateCurArray;
+				
 				TAS.runBack = true;
 				_root.tt.doTween("reload");
 			}
-			if (TAS.write)
-				TAS.truncateCurArray();
 			
 		} else if (code == 220) { //|
 			TAS.scrollToCaret();
@@ -361,6 +354,8 @@ class TAS
 		TAS.indArray.length = TAS.curIndex + 1;
 		TAS.endIndArray.length = TAS.curIndex + 1;
 		
+		TAS.totalLength = TAS.totalFrame;
+		
 		TAS.valueArray[TAS.curIndex] = TAS.curFrame;
 		if (TAS.curIndex == 0) {
 			if (TAS.indArray[0] == -1) {
@@ -409,13 +404,10 @@ class TAS
 		var newValueArray = [0];
 		var newIndArray = [-1];
 		var newEndIndArray = [0];
-		var newIndex = -1;
-		var newFrame = -1;
 		var newString = str;
 		
-		var useCaretPos = false;
-		if (caretPos >= 0) useCaretPos = true;
-		var caretInd = -1;
+		var barFrame = -Infinity;
+		var caretFrame = -Infinity;
 		
 		if (!codeObj) codeObj = {};
 		var newCodeObj = {};
@@ -522,8 +514,7 @@ class TAS
 			num += linNum;
 			
 			if (symbol == "|") {
-				newIndex = newInputArray.length;
-				newFrame = num;
+				barFrame = totalFrame + num;
 				i -= endPos - pos;
 				caretPos -= endPos - pos;
 				newString = newString.slice(0, pos) + newString.slice(endPos);
@@ -555,8 +546,8 @@ class TAS
 					newEndIndArray.push(endPos);
 				}
 				
-				if (caretInd == -1 && caretPos < endPos) {
-					caretInd = Math.max(0, newInputArray.length - 2);
+				if (caretFrame == -Infinity && caretPos < endPos) {
+					caretFrame = totalFrame;
 				}
 				
 				if (TAS.isFullLetter(symbol)) {
@@ -598,32 +589,13 @@ class TAS
 			newIndArray.push(insertionPoint);
 			newEndIndArray.push(insertionPoint + 1);
 			newString = newString.slice(0, insertionPoint) + "n" + newString.slice(insertionPoint);
+			totalFrame++;
 		}
 		
-		if (useCaretPos) {
-			if (caretInd == -1) {
-				newIndex = newInputArray.length - 1;
-			} else {
-				newIndex = caretInd;
-			}
-			newFrame = newValueArray[newIndex];
-		} else {
-			if (newIndex == -1 || newIndex == newInputArray.length) {
-				newIndex = newInputArray.length - 1;
-				newFrame = newValueArray[newIndex];
-			} else if (newFrame == 0) {
-				newIndex--;
-				newFrame = newValueArray[newIndex];
-			} else {
-				newFrame = Math.min(newFrame, newValueArray[newIndex]);
-			}
-		}
+		var newFrame = caretPos >= 0? caretFrame : Math.min(barFrame, totalFrame);
 		
-		if (TAS.isSubLetter(newInputArray[newIndex])) {
-			while (TAS.isSubLetter(newInputArray[newIndex])) {
-				newIndex--;
-			}
-			newFrame = newValueArray[newIndex];
+		if (newFrame === -Infinity) {
+			newFrame = totalFrame;
 		}
 		
 		return {
@@ -632,8 +604,8 @@ class TAS
 			indArray: newIndArray,
 			endIndArray: newEndIndArray,
 			curString: newString,
-			curIndex: newIndex,
-			curFrame: newFrame,
+			totalFrame: newFrame,
+			totalLength: totalFrame,
 			offsetSetup: offsetSetup,
 			err: firstError,
 			codeObj: newCodeObj
@@ -645,18 +617,19 @@ class TAS
 		
 		var areEqual = true;
 		
-		if (TAS.curIndex == obj.curIndex && TAS.curFrame == obj.curFrame) {
-			i = 0;
-			while (i < obj.curIndex) {
-				if (TAS.inputArray[i] != obj.inputArray[i] || TAS.valueArray[i] != obj.valueArray[i]) {
+		if (TAS.totalFrame == obj.totalFrame) {
+			
+			for (var ind = 0, totalFrame = 0; totalFrame < TAS.totalFrame; ind++) {
+				if (TAS.isFullLetter(TAS.inputArray[ind])) {
+					totalFrame += TAS.valueArray[ind];
+				}
+				
+				if (TAS.inputArray[ind] != obj.inputArray[ind] || TAS.valueArray[ind] != obj.valueArray[ind] && !(totalFrame >= TAS.totalFrame && totalFrame - TAS.valueArray[ind] + obj.valueArray[ind] >= TAS.totalFrame)) {
 					areEqual = false;
 					break;
 				}
-				i++;
 			}
-			if (TAS.inputArray[obj.curIndex] != obj.inputArray[obj.curIndex]) {
-				areEqual = false;
-			}
+
 		} else {
 			areEqual = false;
 		}
@@ -672,17 +645,18 @@ class TAS
 		TAS.codeObj = obj.codeObj;
 		
 		TAS.curString = obj.curString;
-		TAS.curIndex = obj.curIndex;
-		TAS.curFrame = obj.curFrame;
+		TAS.totalFrame = obj.totalFrame;
+		TAS.totalLength = obj.totalLength;
 		
 		if (!areEqual) {
+			TAS.delayedFun = [TAS.updateError, obj.err, TAS.inputField];
+			
 			TAS.runBack = true;
 			_root.tt.doTween("reload");
 		} else {
 			TAS.updateText();
+			TAS.updateError(obj.err, TAS.inputField);
 		}
-		
-		TAS.updateError(obj.err, TAS.inputField);
 	}
 	
 	static function loadOffsets() {
@@ -701,8 +675,7 @@ class TAS
 		TAS.offsetCodeObj = obj.codeObj;
 		
 		if (TAS.offsetSetup.length > 4) {
-			obj.curIndex = obj.inputArray.length - 1;
-			obj.curFrame = obj.valueArray[obj.curIndex];
+			obj.totalFrame = obj.totalLength;
 			
 			TAS.initOffsetInd = 4;
 			
@@ -765,23 +738,22 @@ class TAS
 			return;
 		}
 		
-		var textW;
+		var firstHalf = "";
 		
 		if (TAS.isAtStringEnd()) {
-			TAS.inputField.text = TAS.curString;
-			textW = TAS.inputField.textWidth;
+			TAS.inputField.text = firstHalf = TAS.curString;
 		} else if (TAS.curFrame == TAS.valueArray[TAS.curIndex]) {
-			TAS.inputField.text = TAS.curString.slice(0, TAS.indArray[TAS.curIndex+1]);
-			textW = TAS.inputField.textWidth;
-			TAS.inputField.text += "|" + TAS.curString.slice(TAS.indArray[TAS.curIndex+1]);
+			firstHalf = TAS.curString.slice(0, TAS.indArray[TAS.curIndex+1]);
+			TAS.inputField.text = firstHalf + "|" + TAS.curString.slice(TAS.indArray[TAS.curIndex+1]);
 		} else {
-			TAS.inputField.text = TAS.curString.slice(0, TAS.indArray[TAS.curIndex]);
-			textW = TAS.inputField.textWidth;
-			TAS.inputField.text += "|" + TAS.curFrame + TAS.curString.slice(TAS.indArray[TAS.curIndex]);
+			firstHalf = TAS.curString.slice(0, TAS.indArray[TAS.curIndex]);
+			TAS.inputField.text = firstHalf + "|" + TAS.curFrame + TAS.curString.slice(TAS.indArray[TAS.curIndex]);
 		}
 		
 		if (Utils.autoScroll) {
-			TAS.inputField.hscroll = (textW - 225) * TAS.inputField.maxhscroll / (TAS.inputField.textWidth - 395);
+			Windows.clip.inputWindow.testField.text = firstHalf;
+			
+			TAS.inputField.hscroll = (Windows.clip.inputWindow.testField.textWidth - 225) * TAS.inputField.maxhscroll / (TAS.inputField.textWidth - 395);
 		}
 	}
 	
@@ -1063,6 +1035,7 @@ class TAS
 			}
 			
 			TAS.curString += endString;
+			TAS.totalLength++;
 		}
 		
 		var prevFullLetter = "n";
@@ -1166,7 +1139,7 @@ class TAS
 		TAS.curFrame++;
 		TAS.totalFrame++;
 		
-		if (TAS.fastPlayback && (TAS.curIndex == TAS.targetIndex && TAS.curFrame == TAS.targetFrame || TAS.isAtStringEnd())) {
+		if (TAS.fastPlayback && (TAS.totalFrame == TAS.targetFrame || TAS.isAtStringEnd())) {
 			TAS.fastPlayback = false;
 		}
 	}
@@ -1254,8 +1227,7 @@ class TAS
 		com.nitrome.toxic.Global.UP_PRESSED = false;
 		var oldWrite = TAS.write;
 		TAS.write = false;
-		TAS.targetIndex = TAS.curIndex;
-		TAS.targetFrame = TAS.curFrame;
+		TAS.targetFrame = TAS.totalFrame;
 		TAS.curIndex = 0;
 		TAS.curFrame = TAS.valueArray[0];
 		
@@ -1286,13 +1258,12 @@ class TAS
 		
 		if (TAS.runBack) {
 			TAS.runBack = false;
-			while (TAS.curIndex < TAS.targetIndex || TAS.curFrame < TAS.targetFrame) {
+			while (TAS.totalFrame < TAS.targetFrame) {
 				Main.gameUpdate();
 			}
 		}
 		
 		TAS.fastPlayback = false;
-		TAS.targetIndex = -1;
 		TAS.write = oldWrite;
 		
 		TAS.updateText();
@@ -1303,5 +1274,10 @@ class TAS
 		}
 		TAS.initOffsetInd = -1;
 		TAS.updateOffsetBars();
+		
+		if (TAS.delayedFun) {
+			Code.execute(TAS.delayedFun);
+			TAS.delayedFun = null;
+		}
 	}
 }
