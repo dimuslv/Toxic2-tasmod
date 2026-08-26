@@ -3,7 +3,7 @@ class TAS
 	static var write = true;
 	static var override = true;
 	static var frozen = false;
-	static var curString = "109";
+	static var curString = "60";
 	
 	static var curIndex = 0;
 	static var curFrame = 0;
@@ -14,10 +14,10 @@ class TAS
 	static var inputArray = ["i"];
 	static var valueArray = [0];
 	static var indArray = [-1];
-	static var endIndArray = [3];
+	static var endIndArray = [2];
 	static var codeObj = {};
 	static var ghostData = [];
-	static var beginningFrames = 109;
+	static var beginningFrames = 60;
 	
 	static var fastPlayback = false;
 	static var saveStates = [];
@@ -269,7 +269,9 @@ class TAS
 			}
 			
 			if (TAS.write) {
-				TAS.skipToFrame(TAS.totalFrame + i);
+				Main.gameUpdate();
+				TAS.updateText();
+				Main.stopAll();
 			} else {
 				TAS.skipToFrame(Math.min(TAS.totalFrame + i, TAS.totalLength));
 			}
@@ -1204,12 +1206,17 @@ class TAS
 			return false;
 		}
 		
+		var oldWrite = TAS.write;
+		TAS.write = false;
+		
 		TAS.fastPlayback = true;
 		while (TAS.totalFrame < frame - 1) {
 			Main.gameUpdate();
 		}
 		TAS.fastPlayback = false;
 		Main.gameUpdate();
+		
+		TAS.write = oldWrite;
 		
 		TAS.updateText();
 		Main.stopAll();
@@ -1256,9 +1263,6 @@ class TAS
 		TAS.curPatternInd = 0;
 		TAS.curPatternFrame = 0;
 		
-		var oldWrite = TAS.write;
-		TAS.write = false;
-		
 		if (TAS.targetFrame !== -Infinity) {
 			TAS.skipToFrame(TAS.targetFrame);
 			TAS.targetFrame = -Infinity;
@@ -1270,8 +1274,6 @@ class TAS
 			TAS.updateText();
 			Main.stopAll();
 		}
-		
-		TAS.write = oldWrite;
 		
 		if (TAS.initOffsetInd === -1) {
 			for (var i = 3; i < TAS.offsetSetup.length; i += 4) {
