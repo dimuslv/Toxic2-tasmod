@@ -28,7 +28,7 @@ class Windows
 			customMinimize: function(w) {
 				w.minimized = !w.minimized;
 				if (w.inputField._visible = !w.minimized) {
-					TAS.updateText();
+					TAS.textRefresh = true;
 				}
 				
 				w.updateMainField(false);
@@ -196,6 +196,8 @@ class Windows
 				Windows.windowFunction(Windows.clip[i].obj.update, Windows.clip[i]);
 			}
 		}
+		
+		Main.endFrame();
 	}
 	
 	static function windowFunction(fun, w) {

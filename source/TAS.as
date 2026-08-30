@@ -61,6 +61,8 @@ class TAS
 	static var keysDown = {};
 	static var importantKeycodes = TAS.getImportantKeycodes();
 	
+	static var textRefresh = false;
+	
 	static function getImportantKeycodes() {
 		var obj = {};
 		var arr = [37, 38, 39, 40, 87, 65, 83, 68, 32];
@@ -239,12 +241,12 @@ class TAS
 			Windows.clip.varWindow._visible = !Windows.clip.varWindow._visible;
 		} else if (code == 73) { //i
 			if (Windows.clip.inputWindow._visible = !Windows.clip.inputWindow._visible) {
-				TAS.updateText();
+				TAS.textRefresh = true;
 			}
 			//Windows.nullFocus();
 		} else if (code === 79) { //o
 			Windows.clip.inputWindow._visible = true;
-			TAS.updateText();
+			TAS.textRefresh = true;
 			
 			TAS.offsetField._visible = !TAS.offsetField._visible;
 			if (TAS.offsetField._visible) {
@@ -270,7 +272,6 @@ class TAS
 			
 			if (TAS.write) {
 				Main.gameUpdate();
-				TAS.updateText();
 				Main.stopAll();
 			} else {
 				TAS.skipToFrame(Math.min(TAS.totalFrame + i, TAS.totalLength));
@@ -289,7 +290,7 @@ class TAS
 				if (TAS.write)
 					TAS.delayedFun = function() {
 						TAS.truncateCurArray();
-						TAS.updateText();
+						TAS.textRefresh = true;
 					};
 				
 				TAS.targetFrame = Math.max(-TAS.beginningFrames, TAS.totalFrame - i);
@@ -304,7 +305,7 @@ class TAS
 			} else {
 				TAS.truncateCurArray();
 			}
-			TAS.updateText();
+			TAS.textRefresh = true;
 		} else if (code == 82) { //r
 			//TAS.curIndex = 0;
 			//TAS.curFrame = TAS.valueArray[0];
@@ -314,14 +315,7 @@ class TAS
 		} else if (code >= 48 && code <= 57) { //0..9
 			var state = TAS.saveStates[code-48];
 			if (Key.isDown(16)) { //Shift
-				TAS.updateText(true);
-				TAS.saveStates[code-48] = {
-					inputText: TAS.inputField.text,
-					codeObj: TAS.codeObj,
-					ghostData: TAS.ghostData.concat()
-				};
-			} else if (state) {
-				if (Key.isDown(17)) {
+				if (Key.isDown(17) && state) {
 					var ghostName = "g" + (code-48);
 					if (_root.game.ghost_holder[ghostName]) {
 						_root.game.ghost_holder[ghostName].removeMovieClip();
@@ -331,11 +325,18 @@ class TAS
 						TAS.ghostVisible[code-48] = true;
 					}
 				} else {
-					TAS.inputField.text = state.inputText;
-					TAS.codeObj = state.codeObj;
-					//TAS.ghostData = state.ghostData.concat();
-					TAS.loadInputs(-1);
+					TAS.updateText(true);
+					TAS.saveStates[code-48] = {
+						inputText: TAS.inputField.text,
+						codeObj: TAS.codeObj,
+						ghostData: TAS.ghostData.concat()
+					};
 				}
+			} else if (state) {
+				TAS.inputField.text = state.inputText;
+				TAS.codeObj = state.codeObj;
+				//TAS.ghostData = state.ghostData.concat();
+				TAS.loadInputs(Key.isDown(17)? -2 : -1);
 			}
 		} else {
 			return false;
@@ -613,6 +614,10 @@ class TAS
 	static function loadInputs(caretPos) {
 		var obj = TAS.parseInputString(TAS.inputField.text, caretPos, TAS.codeObj);
 		
+		if (caretPos === -2) {
+			obj.totalFrame = Math.max(-obj.beginningFrames, Math.min(TAS.totalFrame, obj.totalLength));
+		}
+		
 		var areEqual = true;
 		
 		if (TAS.totalFrame <= obj.totalFrame && TAS.beginningFrames === obj.beginningFrames && TAS.valueArray[0] === obj.valueArray[0]) {
@@ -653,9 +658,8 @@ class TAS
 			TAS.targetFrame = obj.totalFrame;
 			_root.tt.doTween("reload");
 		} else {
-			if (!TAS.skipToFrame(obj.totalFrame)) {
-				TAS.updateText();
-			}
+			TAS.skipToFrame(obj.totalFrame);
+			TAS.textRefresh = true;
 			
 			TAS.updateError(obj.err, TAS.inputField);
 		}
@@ -736,6 +740,8 @@ class TAS
 	}
 
 	static function updateText(forced) {
+		TAS.textRefresh = false;
+		
 		if (!forced && (!Windows.clip.inputWindow._visible || !TAS.inputField._visible)) {
 			return;
 		}
@@ -1215,11 +1221,9 @@ class TAS
 		}
 		TAS.fastPlayback = false;
 		Main.gameUpdate();
+		Main.stopAll();
 		
 		TAS.write = oldWrite;
-		
-		TAS.updateText();
-		Main.stopAll();
 		
 		return true;
 	}
@@ -1268,11 +1272,6 @@ class TAS
 			TAS.targetFrame = -Infinity;
 		} else {
 			TAS.skipToFrame(-TAS.beginningFrames);
-		}
-
-		if (TAS.totalFrame === -109) {
-			TAS.updateText();
-			Main.stopAll();
 		}
 		
 		if (TAS.initOffsetInd === -1) {
