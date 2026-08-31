@@ -51,6 +51,10 @@ class Windows
 			TAS.lastCaretPos = -1;
 		}
 		
+		w.inputField.onSetFocus = function(oldFocus) {
+			TAS.frozen = true;
+		}
+		
 		w.createTextField("offsetField", w.getNextHighestDepth(), 0, 40, 530, 20);
 		w.offsetField.background = true;
 		w.offsetField.type = "input";
@@ -62,12 +66,14 @@ class Windows
 			TAS.loadOffsets();
 		}
 		
+		// Offset window
+		
 		var w = Windows.clip.attachMovie("window", "offsetBarsWindow", Windows.clip.getNextHighestDepth());
 		w.init(10, 200, {
 			title: "Offset bars",
 			customMinimize: function(w) {
 				w.minimized = !w.minimized;
-				w.barsWindow._visible = !w.minimized
+				w.barsWindow._visible = !w.minimized;
 				w.updateMainField(false);
 			}
 		});
@@ -79,12 +85,63 @@ class Windows
 		w.barsWindow.autoSize = true;
 		w._visible = false;
 		
+		// Watch window
 		
+		w = Windows.createWindow("watchWindow", 485, 150, {
+			title: "Watch",
+			customMinimize: function(w) {
+				Windows.minimizeWindow(w);
+				w.expField._visible = !w.minimized;
+			},
+			expressions: [],
+			update: function(w) {
+				w.obj.options = [];
+				for (var i = 0; i < w.obj.expressions.length; i++) {
+					var str = String(Code.interpret(w.obj.expressions[i]));
+					
+					w.obj.options.push(null, [Utils.setClipboard, str]);
+					
+					if (Code.isS("\n", str) || Code.isS("\r", str)) {
+						str = str.split("\n").join("\\n").split("\r").join("\\r");
+					}
+					
+					w.obj.options[w.obj.options.length - 2] = str;
+				}
+				w.updateMainField(false);
+			}
+		});
+		w._visible = false;
+		w._static = true;
+		
+		w.createTextField("expField", w.getNextHighestDepth(), -15, 0, 10, 20);
+		w.expField.background = true;
+		w.expField.autoSize = "right";
+		w.expField.type = "input";
+		w.expField.text = "\r";
+		w.expField.multiline = true;
+		w.expField.setNewTextFormat(new TextFormat(null, null, null, null, null, null, null, null, "right"));
+		
+		w.expField.onKillFocus = function(newFocus) {
+			var arr = this.text.split("\r");
+			
+			this._parent.obj.expressions = [];
+			for (var i = 1; i < arr.length; i++) {
+				try {
+					this._parent.obj.expressions.push(Code.compileValue(arr[i]));
+				} catch (err) {
+					this._parent.obj.expressions.push("");
+				}
+			}
+		}
+		
+		// Var window
 		
 		w = Windows.clip.attachMovie("window", "varWindow", Windows.clip.getNextHighestDepth());
 		w.init(10, 40, {title: "Vars", update: TAS.updateVarWindow});
 		w._static = true;
 		w._visible = false;
+		
+		// Visualization windows
 		
 		var i = 0;
 		while (i < Utils.visWindowArray.length) {
@@ -105,6 +162,8 @@ class Windows
 			w._visible = false;
 			i += 3;
 		}
+		
+		// Input display
 		
 		w = Windows.clip.attachMovie("window", "inputDisplay", Windows.clip.getNextHighestDepth());
 		
@@ -148,6 +207,7 @@ class Windows
 		w._static = true;
 		w._visible = false;
 		
+		// Timer window
 		
 		w = Windows.clip.attachMovie("window", "timerWindow", Windows.clip.getNextHighestDepth());
 		w.init(29, 7, {title: "00:00.000", update: Timer.updateTimerWindow, noMinimize: true});
@@ -155,6 +215,8 @@ class Windows
 		w.mainTextField._height = 25;
 		w._static = true;
 		w._visible = true;
+		
+		// Null field
 		
 		_root.createTextField("nullField", _root.getNextHighestDepth(), 0, 0, 0, 0);
 		_root.nullField._visible = false;
@@ -246,13 +308,13 @@ class Windows
 		w.updateMainField(false);
 	}
 	
-	static function createWindow(x, y, obj) {
-		var w = Windows.clip.attachMovie("window", "window" + Windows.clip.getNextHighestDepth(), Windows.clip.getNextHighestDepth());
+	static function createWindow(name, x, y, obj) {
+		var w = Windows.clip.attachMovie("window", name, Windows.clip.getNextHighestDepth());
 		w.init(x, y, obj);
 		return w;
 	}
 	
 	static function createEmptyWindow(x, y) {
-		return Windows.createWindow(x, y, {title: ""});
+		return Windows.createWindow("window" + Windows.clip.getNextHighestDepth(), x, y, {title: ""});
 	}
 }

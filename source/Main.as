@@ -23,8 +23,9 @@ class Main
 		var g = _root.game;
 		Main.holders = [g.heart_holder, g.object_holder, g.safe_holder, g.danger_holder, g.laser_holder, g.player_holder, g.grow_holder, g.bomb_holder, g.missile_holder, g.splash_holder, g.acid_holder, g.explosion_holder];
 		_root.popup_holder.stopped = true;
-		TAS.levelInit();
+		
 		Utils.levelInit();
+		TAS.levelInit();
 		Main.stopAll();
 	}
 	

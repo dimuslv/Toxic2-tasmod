@@ -180,7 +180,7 @@ class Utils
 				"Info windows", Utils.infoWindowsWindow,
 				"Preferences", Utils.preferenceWindow,
 				"Layer visibility", Utils.layerVisibilityWindow,
-				"Inspect", [Utils.inspectWindow, "_root.game"]
+				"Value view", Utils.valueViewWindow
 			]
 		});
 	}
@@ -406,9 +406,22 @@ class Utils
 		w.updateMainField(obj);
 	}
 	
+	static function valueViewWindow(w) {
+		w.updateMainField({
+			title: "Value view",
+			curWindow: Utils.valueViewWindow,
+			options: [
+				"Basic 🗗", [Utils.activateStaticWindow, Windows.clip.varWindow],
+				"Watch 🗗", [Utils.activateStaticWindow, Windows.clip.watchWindow],
+				"Inspect", [Utils.inspectWindow, "_root.game"],
+				"Back", Utils.mainMenu
+			]
+		});
+	}
+	
 	static function inspectWindow(w, str, isProp) {
 		if (str === "_root") {
-			Utils.mainMenu(w);
+			Utils.valueViewWindow(w);
 			return;
 		}
 		
@@ -430,7 +443,10 @@ class Utils
 			if (!isProp) {
 				obj.options.push("Properties", [Utils.inspectWindow, str, true]);
 			} else if (typeof currentObj === "movieclip") {
-				obj.options.push("_x: " + currentObj._x, false, "_y: " + currentObj._y, false, "_currentframe: " + currentObj._currentframe, false);
+				for (var i = 0; i < 3; i++) {
+					var curName = ["_x", "_y", "_currentframe"][i];
+					obj.options.push(curName + ": " + currentObj[curName], [Utils.copyVar, str + "." + curName]);
+				}
 			}
 			
 			for (var i in currentObj) {
@@ -445,13 +461,34 @@ class Utils
 						break;
 					default:
 						if (isProp) {
-							obj.options.push(i + ": " + currentObj[i], false);
+							obj.options.push(i + ": " + currentObj[i], [Utils.copyVar, str + "." + i]);
 						}
 				}
 			}
 		}
 		
 		w.updateMainField(obj);
+	}
+	
+	static function setClipboard(w, str) {
+		System.setClipboard(str);
+	}
+	
+	static function copyVar(w, str) {
+		var ind = Code.indOf(str, ".");
+		
+		while (ind < str.length) {
+			var nextInd = Code.indOf(str, ".", ind + 1);
+			
+			if (Code.isDigit(str.charAt(ind + 1))) {
+				str = str.slice(0, ind) + "[" + str.slice(ind + 1, nextInd) + "]" + str.slice(nextInd);
+				nextInd++;
+			}
+			
+			ind = nextInd;
+		}
+		
+		System.setClipboard(str);
 	}
 	
 	/*static function frameOffsetWindow(w) {

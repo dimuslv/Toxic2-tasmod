@@ -161,6 +161,10 @@ class Code
 		return r;
 	}
 	
+	static function compileValue(str, startInd, endInd) {
+		return new Parser(new Code().lex(str, startInd, endInd)).expression();
+	}
+	
 	function peek() {
 		if (this.ind >= this.endInd) {
 			return "$end";

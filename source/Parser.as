@@ -235,7 +235,8 @@ class Parser {
 				case ".":
 				case ". ":
 					var spaced = this.consume() === ". ";
-					if (this.peek().slice(0, 2) !== "$v") {
+					var prefix = this.peek().slice(0, 2);
+					if (prefix !== "$v" && prefix !== "$n") {
 						this.wrongTokenError();
 					}
 					if (!spaced && a instanceof Array && a[0] === "$" && typeof a[1] === "string") {
