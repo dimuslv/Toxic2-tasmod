@@ -488,6 +488,10 @@ class Utils
 			ind = nextInd;
 		}
 		
+		if (str.slice(0, 10) === "_root.game") {
+			str = "g" + str.slice(10);
+		}
+		
 		System.setClipboard(str);
 	}
 	

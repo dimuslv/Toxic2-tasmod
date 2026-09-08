@@ -404,6 +404,7 @@ class TAS
 		
 		var barFrame = -Infinity;
 		var caretFrame = -Infinity;
+		var useCaretPos = caretPos >= 0;
 		
 		if (!codeObj) codeObj = {};
 		var newCodeObj = {};
@@ -590,7 +591,7 @@ class TAS
 			totalFrame++;
 		}
 		
-		var newFrame = caretPos >= 0? caretFrame : Math.min(barFrame, totalFrame);
+		var newFrame = useCaretPos? caretFrame : Math.min(barFrame, totalFrame);
 		
 		if (newFrame === -Infinity) {
 			newFrame = totalFrame;

@@ -97,15 +97,29 @@ class Windows
 			update: function(w) {
 				w.obj.options = [];
 				for (var i = 0; i < w.obj.expressions.length; i++) {
-					var str = String(Code.interpret(w.obj.expressions[i]));
+					var val = Code.interpret(w.obj.expressions[i]);
 					
-					w.obj.options.push(null, [Utils.setClipboard, str]);
+					if (val instanceof CompilerError) {
+						
+						w.obj.options.push(null, [function(w, pos) {
+							Selection.setFocus(w.expField);
+							Selection.setSelection(pos, pos);
+						}, val.pos]);
+						
+						val = "Error: " + val.message;
+						
+					} else {
 					
-					if (Code.isS("\n", str) || Code.isS("\r", str)) {
-						str = str.split("\n").join("\\n").split("\r").join("\\r");
+						val = String(val);
+						
+						w.obj.options.push(null, [Utils.setClipboard, val]);
+					}
+						
+					if (Code.isS("\n", val) || Code.isS("\r", val)) {
+						val = val.split("\n").join("\\n").split("\r").join("\\r");
 					}
 					
-					w.obj.options[w.obj.options.length - 2] = str;
+					w.obj.options[w.obj.options.length - 2] = val;
 				}
 				w.updateMainField(false);
 			}
@@ -123,13 +137,17 @@ class Windows
 		
 		w.expField.onKillFocus = function(newFocus) {
 			var arr = this.text.split("\r");
+			var preText = 0;
 			
 			this._parent.obj.expressions = [];
 			for (var i = 1; i < arr.length; i++) {
+				preText += arr[i - 1].length + 1;
+				
 				try {
 					this._parent.obj.expressions.push(Code.compileValue(arr[i]));
 				} catch (err) {
-					this._parent.obj.expressions.push("");
+					err.pos += preText;
+					this._parent.obj.expressions.push(err);
 				}
 			}
 		}
