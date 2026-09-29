@@ -50,13 +50,16 @@ class TAS
 	static var inputFieldError = null;
 	static var offsetFieldError = null;
 	
+	static var specialMode = 0;
+	static var specialModeData;
+	
 	static var UP_PRESSED = false;
 	static var DOWN_PRESSED = false;
 	
 	static var subLetters = "rbjJPh";
 	static var fullLetters = "qweasdQWEADnp";
 	static var letters = TAS.subLetters + TAS.fullLetters;
-	static var symbols = TAS.letters + "|<>,.{";
+	static var symbols = TAS.letters + "|<>,.{/";
 	
 	static var keysDown = {};
 	static var importantKeycodes = TAS.getImportantKeycodes();
@@ -176,7 +179,7 @@ class TAS
 			}
 			
 			if (TAS.importantKeycodes[code]) {
-				if (!TAS.keysDown[code] && TAS.write) {
+				if (!TAS.keysDown[code]) {
 					TAS.hitOffset(code);
 				}
 				TAS.keysDown[code] = true;
@@ -197,9 +200,7 @@ class TAS
 		}
 		
 		if (TAS.importantKeycodes[code]) {
-			if (TAS.write) {
-				TAS.hitOffset(-code);
-			}
+			TAS.hitOffset(-code);
 			TAS.keysDown[code] = false;
 		}
 	}
@@ -354,6 +355,7 @@ class TAS
 		TAS.endIndArray.length = TAS.curIndex + 1;
 		
 		TAS.totalLength = TAS.totalFrame;
+		TAS.specialMode = 0;
 		
 		TAS.valueArray[TAS.curIndex] = TAS.curFrame;
 		if (TAS.curIndex == 0) {
@@ -393,6 +395,14 @@ class TAS
 		
 		TAS.curString = newString;
 	}
+	
+	static function getKeyLetterNum(letter) {
+		var num = {w: 87, a: 65, s: 83, d: 68, u: 38, l: 37, v: 40, r: 39, b: 32}[letter.toLowerCase()];
+		if (letter !== letter.toLowerCase()) {
+			num *= -1;
+		}
+		return num;
+	}
 
 	static function parseInputString(str, caretPos, codeObj) {
 		var newInputArray = ["i"];
@@ -402,8 +412,8 @@ class TAS
 		var newString = str;
 		var beginningFrames = 0;
 		
-		var barFrame = -Infinity;
-		var caretFrame = -Infinity;
+		var barFrame = Infinity;
+		var caretFrame = Infinity;
 		var useCaretPos = caretPos >= 0;
 		
 		if (!codeObj) codeObj = {};
@@ -419,6 +429,9 @@ class TAS
 		
 		var firstError = null;
 		
+		var specialMode = 0;
+		var specialModeData = null;
+		
 		var i = -1;
 		
 		while (i < newString.length) {
@@ -428,7 +441,7 @@ class TAS
 			var num = 0;
 			
 			var linNum = 0;
-			var dotLetter = "";
+			var keyLetter = "";
 			var patternDiff = false;
 			
 			var codeStr = "";
@@ -483,12 +496,12 @@ class TAS
 			while (i < newString.length) {
 				var curSymbol = newString.charAt(i);
 				
-				if (newString.charCodeAt(i) >= 48 && newString.charCodeAt(i) <= 57) {
-					num = num * 10 + newString.charCodeAt(i) - 48;
+				if (Code.isDigit(curSymbol)) {
+					num = num * 10 + curSymbol.charCodeAt(0) - 48;
 					endPos = i + 1;
-				} else if (symbol === "." && !dotLetter) {
+				} else if (symbol === "." && !keyLetter) {
 					if (TAS.isKeyLetter(curSymbol)) {
-						dotLetter = curSymbol;
+						keyLetter = curSymbol;
 					} else if (curSymbol === ".") {
 						linNum += num? num : 1;
 						num = 0;
@@ -496,6 +509,9 @@ class TAS
 				} else if (symbol === "," && curSymbol === ",") {
 					linNum += num? num : 1;
 					num = 0;
+				} else if (symbol === "/" && !keyLetter && !num && TAS.isKeyLetter(curSymbol)) {
+					keyLetter = curSymbol;
+					endPos = i + 1;
 				} else if (TAS.isSymbol(curSymbol)) {
 					break;
 				}
@@ -503,7 +519,7 @@ class TAS
 				i++;
 			}
 			
-			if (!TAS.isS(symbol, "|<>r") && !num) {
+			if (!TAS.isS(symbol, "|<>r/") && !num) {
 				num = 1;
 			}
 			num += linNum;
@@ -517,15 +533,26 @@ class TAS
 				i -= endPos - pos;
 				caretPos -= endPos - pos;
 				newString = newString.slice(0, pos) + newString.slice(endPos);
+				specialMode = 0;
+			} else if (symbol === "/") {
+				if (keyLetter) {
+					barFrame = totalFrame;
+					specialMode = 2;
+					specialModeData = [keyLetter, totalFrame];
+				} else {
+					barFrame = totalFrame - num;
+					specialMode = 1;
+					specialModeData = [newInputArray.length - 1, totalFrame];
+				}
+				
+				i -= endPos - pos;
+				caretPos -= endPos - pos;
+				newString = newString.slice(0, pos) + newString.slice(endPos);
 			} else if (TAS.isS(symbol, "<>")) {
 				offsetSetup.push(totalFrame, num, patternDiff, []);
 			} else if (symbol === ".") {
-				if (dotLetter) {
-					var letterNum = {w: 87, a: 65, s: 83, d: 68, u: 38, l: 37, v: 40, r: 39, b: 32}[dotLetter.toLowerCase()];
-					if (dotLetter !== dotLetter.toLowerCase()) {
-						letterNum *= -1;
-					}
-					Utils.pushO(offsetSetup, totalFrame, letterNum, num);
+				if (keyLetter) {
+					Utils.pushO(offsetSetup, totalFrame, TAS.getKeyLetterNum(keyLetter), num);
 				}
 			} else if (symbol === ",") {
 				commaNum = num;
@@ -545,7 +572,7 @@ class TAS
 					newEndIndArray.push(endPos);
 				}
 				
-				if (caretFrame == -Infinity && caretPos < endPos) {
+				if (caretFrame === Infinity && caretPos < endPos) {
 					caretFrame = totalFrame;
 				}
 				
@@ -591,11 +618,16 @@ class TAS
 			totalFrame++;
 		}
 		
-		var newFrame = useCaretPos? caretFrame : Math.min(barFrame, totalFrame);
+		var newFrame;
 		
-		if (newFrame === -Infinity) {
-			newFrame = totalFrame;
+		if (useCaretPos) {
+			newFrame = caretFrame;
+			specialMode = 0;
+		} else {
+			newFrame = barFrame;
 		}
+		
+		newFrame = Math.max(-beginningFrames, Math.min(totalFrame, newFrame));
 		
 		return {
 			inputArray: newInputArray,
@@ -608,7 +640,9 @@ class TAS
 			beginningFrames: beginningFrames,
 			offsetSetup: offsetSetup,
 			err: firstError,
-			codeObj: newCodeObj
+			codeObj: newCodeObj,
+			specialMode: specialMode,
+			specialModeData: specialModeData
 		};
 	}
 	
@@ -653,6 +687,14 @@ class TAS
 		TAS.totalLength = obj.totalLength;
 		TAS.beginningFrames = obj.beginningFrames;
 		
+		TAS.specialMode = obj.specialMode;
+		TAS.specialModeData = obj.specialModeData;
+		if (TAS.specialMode === 1) {
+			TAS.write = false;
+		} else if (TAS.specialMode === 2) {
+			TAS.frozen = true;
+		}
+		
 		if (!areEqual) {
 			TAS.delayedFun = [TAS.updateError, obj.err, TAS.inputField];
 			
@@ -683,6 +725,7 @@ class TAS
 		
 		if (TAS.offsetSetup.length > 4) {
 			obj.totalFrame = obj.totalLength;
+			obj.specialMode = 0;
 			
 			TAS.initOffsetInd = 4;
 			
@@ -739,6 +782,22 @@ class TAS
 		
 		w.text = w.text.slice(0, -1);
 	}
+	
+	static function getCaretPosAndString() {
+		if (TAS.specialMode === 1) {
+			return [TAS.endIndArray[TAS.specialModeData[0]], "/" + (TAS.specialModeData[1] - TAS.totalFrame)];
+		}
+		if (TAS.specialMode === 2) {
+			return [TAS.endIndArray[TAS.curIndex], "/" + TAS.specialModeData[0]];
+		}
+		if (TAS.isAtStringEnd()) {
+			return [TAS.curString.length, ""];
+		}
+		if (TAS.curFrame === TAS.valueArray[TAS.curIndex]) {
+			return [TAS.indArray[TAS.curIndex+1], "|"];
+		}
+		return [TAS.indArray[TAS.curIndex], "|" + TAS.curFrame];
+	}
 
 	static function updateText(forced) {
 		TAS.textRefresh = false;
@@ -747,17 +806,10 @@ class TAS
 			return;
 		}
 		
-		var firstHalf = "";
+		var data = TAS.getCaretPosAndString();
 		
-		if (TAS.isAtStringEnd()) {
-			TAS.inputField.text = firstHalf = TAS.curString;
-		} else if (TAS.curFrame == TAS.valueArray[TAS.curIndex]) {
-			firstHalf = TAS.curString.slice(0, TAS.indArray[TAS.curIndex+1]);
-			TAS.inputField.text = firstHalf + "|" + TAS.curString.slice(TAS.indArray[TAS.curIndex+1]);
-		} else {
-			firstHalf = TAS.curString.slice(0, TAS.indArray[TAS.curIndex]);
-			TAS.inputField.text = firstHalf + "|" + TAS.curFrame + TAS.curString.slice(TAS.indArray[TAS.curIndex]);
-		}
+		var firstHalf = TAS.curString.slice(0, data[0]);
+		TAS.inputField.text = firstHalf + data[1] + TAS.curString.slice(data[0]);
 		
 		if (Utils.autoScroll) {
 			Windows.clip.inputWindow.testField.text = firstHalf;
@@ -778,11 +830,11 @@ class TAS
 		if (err && Selection.getFocus() === String(field)) {
 			var pos = err.pos;
 			
-			if (field === TAS.inputField && !TAS.isAtStringEnd()) {
-				if (TAS.curFrame === TAS.valueArray[TAS.curIndex]) {
-					pos += pos >= TAS.indArray[TAS.curIndex + 1]? 1 : 0;
-				} else {
-					pos += pos >= TAS.indArray[TAS.curIndex]? 1 + String(TAS.curFrame).length : 0;
+			if (field === TAS.inputField) {
+				var caretPosAndString = TAS.getCaretPosAndString();
+				
+				if (pos >= caretPosAndString[0]) {
+					pos += caretPosAndString[1].length;
 				}
 			}
 			
@@ -824,6 +876,16 @@ class TAS
 	}
 	
 	static function hitOffset(inp) {
+		if (TAS.specialMode === 2) {
+			if (TAS.totalFrame !== TAS.specialModeData[1]) {
+				TAS.specialMode = 0;
+			} else if (inp === TAS.getKeyLetterNum(TAS.specialModeData[0])) {
+				TAS.write = true;
+				TAS.frozen = false;
+				TAS.specialMode = 0;
+			}
+		}
+		
 		var curArr = TAS.offsetSetup[TAS.curPattern];
 		
 		if (!curArr) {
@@ -1046,6 +1108,7 @@ class TAS
 			
 			TAS.curString += endString;
 			TAS.totalLength++;
+			TAS.specialMode = 0;
 		}
 		
 		var prevFullLetter = "n";
@@ -1148,6 +1211,10 @@ class TAS
 		}
 		TAS.curFrame++;
 		TAS.totalFrame++;
+		if (TAS.specialMode === 1 && TAS.totalFrame >= TAS.specialModeData[1]) {
+			TAS.specialMode = 0;
+			TAS.write = true;
+		}
 	}
 	
 	static function performQueuedHit() {

@@ -480,9 +480,35 @@ class Utils
 		while (ind < str.length) {
 			var nextInd = Code.indOf(str, ".", ind + 1);
 			
-			if (Code.isDigit(str.charAt(ind + 1))) {
-				str = str.slice(0, ind) + "[" + str.slice(ind + 1, nextInd) + "]" + str.slice(nextInd);
-				nextInd++;
+			var varType = 0;
+			
+			if (Code.isVarMiddle(str.charAt(ind + 1))) {
+				if (Code.isDigit(str.charAt(ind + 1))) {
+					varType = 1;
+				}
+				
+				for (var i = ind + 2; i < nextInd; i++) {
+					if (varType === 0 && !Code.isVarMiddle(str.charAt(i)) ||
+						varType === 1 && !Code.isDigit(str.charAt(i))) {
+						varType = 2;
+						break;
+					}
+				}
+			} else {
+				varType = 2;
+			}
+			
+			
+			if (varType !== 0) {
+				var replacement = str.slice(ind + 1, nextInd);
+				
+				if (varType === 2) {
+					replacement = "\"" + replacement.split("\\").join("\\\\").split("\"").join("\\\"").split("\n").join("\\n").split("\r").join("\\r") + "\"";
+				}
+				
+				str = str.slice(0, ind) + "[" + replacement + "]" + str.slice(nextInd);
+				
+				nextInd = ind + replacement.length + 2;
 			}
 			
 			ind = nextInd;

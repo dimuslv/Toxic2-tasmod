@@ -3,6 +3,8 @@ class Main
 	static var holders;
 	static var scriptStack;
 	static var spriteInfo;
+	static var prevFrameStamp = 0;
+	static var prevFrameTime = 0;
 	
 	static function init() {
 		_root.aMode = true;
@@ -30,12 +32,18 @@ class Main
 	}
 	
 	static function endFrame() {
+		if (TAS.specialMode === 2 && TAS.totalFrame !== TAS.specialModeData[1]) {
+			TAS.specialMode = 0;
+		}
 		if (TAS.textRefresh) {
 			TAS.updateText();
 		}
 	}
 	
 	static function metaUpdate() {
+		Main.prevFrameTime = getTimer() - Main.prevFrameStamp;
+		Main.prevFrameStamp = getTimer();
+		
 		if (TAS.delayedCaretPos != -1) {
 			Selection.setFocus(Windows.clip.inputWindow.inputField);
 			Selection.setSelection(TAS.delayedCaretPos, TAS.delayedCaretPos);

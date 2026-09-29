@@ -1,3 +1,7 @@
+- fix space resetting on death menu
+- can minimize left part of watch window by typing in first row?
+- fix dying in acid sound
+- look into performance (regression)
 - Ghost trails?
 - walljump/release-jump cleanliness indicator (by changing player color)?
 - Also maybe input string symbol lengths should be local so you wouldn't have to update them all when writing in insert mode
