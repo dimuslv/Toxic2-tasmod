@@ -19,7 +19,6 @@ class Utils
 	static var deactivateTeleport = false;
 	static var laserState = 1;
 	static var conveyorsOn = true;
-	static var skipBeginning = true;
 	static var autoScroll = true;
 	static var screenshake = true;
 	static var visWindowArray = ["Damage",60,52,"Acid",60,52,"Object",60,52,"Bomb",31,18,"Explosion",120,120];
@@ -56,9 +55,9 @@ class Utils
 	}
 	static function onClearAll(game)
 	{
-		for(var _loc2_ in game.test_holder)
+		for(var i in game.test_holder)
 		{
-			game.test_holder[_loc2_].removeMovieClip();
+			game.test_holder[i].removeMovieClip();
 		}
 	}
 	static function testVisible(layer)
@@ -67,12 +66,12 @@ class Utils
 	}
 	static function markCollisionQuery(x, y, fun)
 	{
-		var _loc4_ = fun(x,y);
+		var ans = fun(x,y);
 		if(Utils.testVisible("collisionQueries"))
 		{
-			Utils.collisionQueryBitmap.setPixel32(x,y,_loc4_ ? 4294914816 : 4288269567);
+			Utils.collisionQueryBitmap.setPixel32(x,y,ans ? 4294914816 : 4288269567);
 		}
-		return _loc4_;
+		return ans;
 	}
 	static function markBomberRange(x, y)
 	{
@@ -116,79 +115,74 @@ class Utils
 	}
 	static function levelInit()
 	{
-		var _loc2_;
 		if(!Utils.layerVisibilities)
 		{
 			Utils.layerVisibilities = {};
-			_loc2_ = [];
-			for(var _loc3_ in _root.game)
+			var tempArr = [];
+			for(var holder in _root.game)
 			{
-				if(_loc3_.slice(-7) == "_holder")
+				if(holder.slice(-7) == "_holder")
 				{
-					_loc2_.push(_loc3_);
+					tempArr.push(holder);
 				}
 			}
-			for(_loc3_ in _loc2_)
+			for(var holder in tempArr)
 			{
-				Utils.layerVisibilities[_loc2_[_loc3_]] = true;
+				Utils.layerVisibilities[tempArr[holder]] = true;
 			}
 			Utils.layerVisibilities.test_holder = false;
 			Utils.testVisibilities = {testPoints:true,collisionQueries:false,robotRanges:false};
 			Utils.extraVisibilities = {pipes:true,big_pipes:true,acid_holder:true,bomb_panel:true,health_panel:true,powercell_panel:true,text_display:true,cutscene:true,popup_holder:true};
 		}
-		for(_loc3_ in _root.game)
+		for(var holder in _root.game)
 		{
-			if(_loc3_.slice(-7) == "_holder")
+			if(holder.slice(-7) == "_holder")
 			{
-				_root.game[_loc3_]._visible = Utils.layerVisibilities[_loc3_];
+				_root.game[holder]._visible = Utils.layerVisibilities[holder];
 			}
 		}
-		for(var _loc4_ in Utils.extraVisibilities)
+		for(var layer in Utils.extraVisibilities)
 		{
-			_root[_loc4_]._visible = Utils.extraVisibilities[_loc4_];
+			_root[layer]._visible = Utils.extraVisibilities[layer];
 		}
-		for(var _loc5_ in Utils.testVisibilities)
+		for(var sprite in Utils.testVisibilities)
 		{
-			_root.game.test_holder[_loc5_]._visible = Utils.testVisibilities[_loc5_];
+			_root.game.test_holder[sprite]._visible = Utils.testVisibilities[sprite];
 		}
 	}
 	static function doKeyDown(code)
 	{
-		var _loc2_;
 		if(code == 77)
 		{
-			_loc2_ = Windows.createEmptyWindow(100,100);
-			Utils.mainMenu(_loc2_);
+			var w = Windows.createEmptyWindow(100,100);
+			Utils.mainMenu(w);
 			return true;
 		}
 	}
 	static function mainMenu(w)
 	{
-		w.updateMainField({title:"Main menu",curWindow:Utils.mainMenu,options:["Testing vars",Utils.testingVarsWindow,"Bruteforcing",Utils.bruteforcingWindow,"Info windows",Utils.infoWindowsWindow,"Preferences",Utils.preferenceWindow,"Layer visibility",Utils.layerVisibilityWindow,"Inspect",[Utils.inspectWindow,"_root.game"]]});
+		w.updateMainField({title:"Main menu",curWindow:Utils.mainMenu,options:["Testing vars",Utils.testingVarsWindow,"Bruteforcing",Utils.bruteforcingWindow,"Info windows",Utils.infoWindowsWindow,"Preferences",Utils.preferenceWindow,"Layer visibility",Utils.layerVisibilityWindow,"Value view",Utils.valueViewWindow]});
 	}
 	static function testingVarsWindow(w)
 	{
-		var _loc2_ = {title:"Testing vars",curWindow:Utils.testingVarsWindow,options:[]};
-		Utils.addToggleVarOptions(_loc2_.options,["Invulnerability",Utils,"invulnerable","No death",Utils,"noDeath","Wrong physics",Utils,"inaccuratePhysics","Deactivate teleport",Utils,"deactivateTeleport","Skip beginning",Utils,"skipBeginning"]);
-		Utils.addCycleOption(_loc2_.options,"Lasers",Utils,"laserState",["off","on","simple"]);
-		Utils.addToggleVarOptions(_loc2_.options,["Conveyors",Utils,"conveyorsOn"]);
-		_loc2_.options.push("Back",Utils.mainMenu);
-		w.updateMainField(_loc2_);
+		var obj = {title:"Testing vars",curWindow:Utils.testingVarsWindow,options:[]};
+		Utils.addToggleVarOptions(obj.options,["Invulnerability",Utils,"invulnerable","No death",Utils,"noDeath","Wrong physics",Utils,"inaccuratePhysics","Deactivate teleport",Utils,"deactivateTeleport"]);
+		Utils.addCycleOption(obj.options,"Lasers",Utils,"laserState",["off","on","simple"]);
+		Utils.addToggleVarOptions(obj.options,["Conveyors",Utils,"conveyorsOn"]);
+		obj.options.push("Back",Utils.mainMenu);
+		w.updateMainField(obj);
 	}
 	static function addToggleVarOptions(options, stuffArray)
 	{
-		var _loc3_ = 0;
-		var _loc4_;
-		var _loc5_;
-		var _loc6_;
-		while(_loc3_ < stuffArray.length)
+		var i = 0;
+		while(i < stuffArray.length)
 		{
-			_loc4_ = stuffArray[_loc3_];
-			_loc5_ = stuffArray[_loc3_ + 1];
-			_loc6_ = stuffArray[_loc3_ + 2];
-			options.push(_loc4_ + ": " + (_loc5_[_loc6_] ? "on" : "off"));
-			options.push([Utils.toggleVar,_loc5_,_loc6_]);
-			_loc3_ += 3;
+			var name = stuffArray[i];
+			var stump = stuffArray[i + 1];
+			var varName = stuffArray[i + 2];
+			options.push(name + ": " + (stump[varName] ? "on" : "off"));
+			options.push([Utils.toggleVar,stump,varName]);
+			i += 3;
 		}
 	}
 	static function toggleVar(w, stump, varName)
@@ -213,33 +207,30 @@ class Utils
 	}
 	static function copyCollisionData(w)
 	{
-		var _loc3_ = [];
-		var _loc4_ = 0;
-		var _loc5_;
-		var _loc6_;
-		var _loc7_;
-		while(_loc4_ < com.nitrome.toxic.Global.level_height)
+		var collisionData = [];
+		var y = 0;
+		while(y < com.nitrome.toxic.Global.level_height)
 		{
-			_loc5_ = 0;
-			while(_loc5_ < com.nitrome.toxic.Global.level_cols)
+			var xcol = 0;
+			while(xcol < com.nitrome.toxic.Global.level_cols)
 			{
-				_loc6_ = 0;
-				_loc7_ = 0;
-				while(_loc7_ < 32)
+				var curInt = 0;
+				var xmod = 0;
+				while(xmod < 32)
 				{
-					if(_root.game.getSceneryCollision(_loc5_ * 32 + _loc7_,_loc4_))
+					if(_root.game.getSceneryCollision(xcol * 32 + xmod,y))
 					{
-						_loc6_ |= 1 << _loc7_;
+						curInt |= 1 << xmod;
 					}
-					_loc7_ = _loc7_ + 1;
+					xmod++;
 				}
-				_loc3_.push(_loc6_);
-				_loc5_ = _loc5_ + 1;
+				collisionData.push(curInt);
+				xcol++;
 			}
-			_loc4_ = _loc4_ + 1;
+			y++;
 		}
-		_loc3_.push(com.nitrome.toxic.Global.level_cols);
-		System.setClipboard(_loc3_.toString());
+		collisionData.push(com.nitrome.toxic.Global.level_cols);
+		System.setClipboard(collisionData.toString());
 	}
 	static function toggleMask(w)
 	{
@@ -256,23 +247,23 @@ class Utils
 	}
 	static function preferenceWindow(w)
 	{
-		var _loc2_ = {title:"Preferences",curWindow:Utils.preferenceWindow,options:[]};
-		Utils.addToggleVarOptions(_loc2_.options,["Perf optimizations",Utils,"perf","Auto scroll",Utils,"autoScroll","Screenshake",Utils,"screenshake"]);
-		_loc2_.options.push("Back",Utils.mainMenu);
-		w.updateMainField(_loc2_);
+		var obj = {title:"Preferences",curWindow:Utils.preferenceWindow,options:[]};
+		Utils.addToggleVarOptions(obj.options,["Perf optimizations",Utils,"perf","Auto scroll",Utils,"autoScroll","Screenshake",Utils,"screenshake"]);
+		obj.options.push("Back",Utils.mainMenu);
+		w.updateMainField(obj);
 	}
 	static function infoWindowsWindow(w)
 	{
-		var _loc2_ = [];
-		var _loc3_ = 0;
-		while(_loc3_ < Utils.visWindowArray.length)
+		var options = [];
+		var i = 0;
+		while(i < Utils.visWindowArray.length)
 		{
-			_loc2_.push(Utils.visWindowArray[_loc3_] + " visualization 🗗",[Utils.activateStaticWindow,Windows.clip[Utils.visWindowArray[_loc3_] + "VisWindow"]]);
-			_loc3_ += 3;
+			options.push(Utils.visWindowArray[i] + " visualization 🗗",[Utils.activateStaticWindow,Windows.clip[Utils.visWindowArray[i] + "VisWindow"]]);
+			i += 3;
 		}
-		_loc2_.push("Input display 🗗",[Utils.activateStaticWindow,Windows.clip.inputDisplay]);
-		_loc2_.push("Back",Utils.mainMenu);
-		w.updateMainField({title:"Info windows",curWindow:Utils.infoWindowsWindow,options:_loc2_});
+		options.push("Input display 🗗",[Utils.activateStaticWindow,Windows.clip.inputDisplay]);
+		options.push("Back",Utils.mainMenu);
+		w.updateMainField({title:"Info windows",curWindow:Utils.infoWindowsWindow,options:options});
 	}
 	static function activateStaticWindow(w, w2)
 	{
@@ -290,66 +281,70 @@ class Utils
 	}
 	static function updateVisBitmap(n, source_bmp)
 	{
-		var _loc3_ = Utils.bmps[n];
+		var dest_bmp = Utils.bmps[n];
 		if(!TAS.fastPlayback && Windows.clip[n + "VisWindow"]._visible)
 		{
-			Utils.clearBitmap(_loc3_);
-			_loc3_.copyPixels(source_bmp,new flash.geom.Rectangle(0,0,source_bmp.width,source_bmp.height),Utils.zeroPoint);
+			Utils.clearBitmap(dest_bmp);
+			dest_bmp.copyPixels(source_bmp,new flash.geom.Rectangle(0,0,source_bmp.width,source_bmp.height),Utils.zeroPoint);
 		}
 	}
 	static function layerVisibilityWindow(w)
 	{
-		for(var _loc3_ in _root.game)
+		for(var holder in _root.game)
 		{
-			if(_loc3_.slice(-7) == "_holder")
+			if(holder.slice(-7) == "_holder")
 			{
-				_root.game[_loc3_]._visible = Utils.layerVisibilities[_loc3_];
+				_root.game[holder]._visible = Utils.layerVisibilities[holder];
 			}
 		}
-		var _loc4_ = {title:"Layer visibility",curWindow:Utils.layerVisibilityWindow,options:[]};
-		var _loc5_ = [];
-		for(_loc3_ in Utils.layerVisibilities)
+		var obj = {title:"Layer visibility",curWindow:Utils.layerVisibilityWindow,options:[]};
+		var arr = [];
+		for(var holder in Utils.layerVisibilities)
 		{
-			_loc5_.push(_loc3_.slice(0,-7),Utils.layerVisibilities,_loc3_);
+			arr.push(holder.slice(0,-7),Utils.layerVisibilities,holder);
 		}
-		_loc4_.options.push("Back",Utils.mainMenu);
-		_loc4_.options.push("Extra",Utils.extraVisibilityWindow);
-		Utils.addToggleVarOptions(_loc4_.options,_loc5_);
-		w.updateMainField(_loc4_);
+		obj.options.push("Back",Utils.mainMenu);
+		obj.options.push("Extra",Utils.extraVisibilityWindow);
+		Utils.addToggleVarOptions(obj.options,arr);
+		w.updateMainField(obj);
 	}
 	static function extraVisibilityWindow(w)
 	{
-		for(var _loc3_ in Utils.testVisibilities)
+		for(var sprite in Utils.testVisibilities)
 		{
-			_root.game.test_holder[_loc3_]._visible = Utils.testVisibilities[_loc3_];
+			_root.game.test_holder[sprite]._visible = Utils.testVisibilities[sprite];
 		}
-		for(var _loc4_ in Utils.extraVisibilities)
+		for(var layer in Utils.extraVisibilities)
 		{
-			_root[_loc4_]._visible = Utils.extraVisibilities[_loc4_];
+			_root[layer]._visible = Utils.extraVisibilities[layer];
 		}
-		var _loc5_ = {title:"Extra visibility",curWindow:Utils.extraVisibilityWindow,options:[]};
-		var _loc6_ = [];
+		var obj = {title:"Extra visibility",curWindow:Utils.extraVisibilityWindow,options:[]};
+		var arr = [];
 		if(Utils.layerVisibilities.test_holder)
 		{
-			for(_loc3_ in Utils.testVisibilities)
+			for(var sprite in Utils.testVisibilities)
 			{
-				_loc6_.push(_loc3_,Utils.testVisibilities,_loc3_);
+				arr.push(sprite,Utils.testVisibilities,sprite);
 			}
 		}
-		for(_loc4_ in Utils.extraVisibilities)
+		for(var layer in Utils.extraVisibilities)
 		{
-			_loc6_.push(_loc4_,Utils.extraVisibilities,_loc4_);
+			arr.push(layer,Utils.extraVisibilities,layer);
 		}
-		_loc5_.options.push("Back",Utils.layerVisibilityWindow);
-		_loc5_.options.push("Mask: " + (Utils.masked ? "on" : "off"),Utils.toggleMask);
-		Utils.addToggleVarOptions(_loc5_.options,_loc6_);
-		w.updateMainField(_loc5_);
+		obj.options.push("Back",Utils.layerVisibilityWindow);
+		obj.options.push("Mask: " + (Utils.masked ? "on" : "off"),Utils.toggleMask);
+		Utils.addToggleVarOptions(obj.options,arr);
+		w.updateMainField(obj);
+	}
+	static function valueViewWindow(w)
+	{
+		w.updateMainField({title:"Value view",curWindow:Utils.valueViewWindow,options:["Basic 🗗",[Utils.activateStaticWindow,Windows.clip.varWindow],"Watch 🗗",[Utils.activateStaticWindow,Windows.clip.watchWindow],"Inspect",[Utils.inspectWindow,"_root.game"],"Back",Utils.mainMenu]});
 	}
 	static function inspectWindow(w, str, isProp)
 	{
 		if(str === "_root")
 		{
-			Utils.mainMenu(w);
+			Utils.valueViewWindow(w);
 			return undefined;
 		}
 		var obj = {title:str.slice(str.lastIndexOf(".") + 1) + (isProp ? "" : "/"),update:[Utils.inspectWindow,str,isProp],options:["Back"]};
@@ -370,7 +365,13 @@ class Utils
 			}
 			else if(typeof currentObj === "movieclip")
 			{
-				obj.options.push("_x: " + currentObj._x,false,"_y: " + currentObj._y,false,"_currentframe: " + currentObj._currentframe,false);
+				var i = 0;
+				while(i < 3)
+				{
+					var curName = ["_x","_y","_currentframe"][i];
+					obj.options.push(curName + ": " + currentObj[curName],[Utils.copyVar,str + "." + curName]);
+					i++;
+				}
 			}
 			for(var i in currentObj)
 			{
@@ -388,12 +389,62 @@ class Utils
 					default:
 						if(isProp)
 						{
-							obj.options.push(i + ": " + currentObj[i],false);
+							obj.options.push(i + ": " + currentObj[i],[Utils.copyVar,str + "." + i]);
 						}
 				}
 			}
 		}
 		w.updateMainField(obj);
+	}
+	static function setClipboard(w, str)
+	{
+		System.setClipboard(str);
+	}
+	static function copyVar(w, str)
+	{
+		var ind = Code.indOf(str,".");
+		while(ind < str.length)
+		{
+			var nextInd = Code.indOf(str,".",ind + 1);
+			var varType = 0;
+			if(Code.isVarMiddle(str.charAt(ind + 1)))
+			{
+				if(Code.isDigit(str.charAt(ind + 1)))
+				{
+					varType = 1;
+				}
+				var i = ind + 2;
+				while(i < nextInd)
+				{
+					if(varType === 0 && !Code.isVarMiddle(str.charAt(i)) || varType === 1 && !Code.isDigit(str.charAt(i)))
+					{
+						varType = 2;
+						break;
+					}
+					i++;
+				}
+			}
+			else
+			{
+				varType = 2;
+			}
+			if(varType !== 0)
+			{
+				var replacement = str.slice(ind + 1,nextInd);
+				if(varType === 2)
+				{
+					replacement = "\"" + replacement.split("\\").join("\\\\").split("\"").join("\\\"").split("\n").join("\\n").split("\r").join("\\r") + "\"";
+				}
+				str = str.slice(0,ind) + "[" + replacement + "]" + str.slice(nextInd);
+				nextInd = ind + replacement.length + 2;
+			}
+			ind = nextInd;
+		}
+		if(str.slice(0,10) === "_root.game")
+		{
+			str = "g" + str.slice(10);
+		}
+		System.setClipboard(str);
 	}
 	static function getLast(arr)
 	{
@@ -409,7 +460,7 @@ class Utils
 	}
 	static function currentPlayerString()
 	{
-		var _loc2_ = _root.game.player;
-		return [_loc2_._x,_loc2_._y,_loc2_.state,_loc2_.vx,_loc2_.vy].join("/");
+		var p = _root.game.player;
+		return [p._x,p._y,p.state,p.vx,p.vy].join("/");
 	}
 }

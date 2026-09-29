@@ -1,11 +1,11 @@
-ConstantPool "_global", "Code", "prototype", "isS", "indexOf", "isWhitespaceAt", "charAt", "isWhitespace", " \t\r\n", "isDigit", "charCodeAt", "isVarStart", "isVarMiddle", "indOf", "length", "parseAngled", "_x", "_y", "vx", "vy", "state", ">", ":;", "slice", "playerVars", "hasOwnProperty", "game", "player", "\'", "\' is not a player variable name", "CompilerError", ";", ",;", "Closing symbol not found", "Number not found", "isNaN", "\' is not a number", ",", "Expected \';\', found \',\'", "compile", "lex", "Parser", "program", "peek", "ind", "endInd", "$end", "str", "consume", "Code string ended unexpectedly", "", "$v", "$n", ".", "\"", "$s", "\\", "n", "t", "\n", "\t", "!+-*/%=&|<>^", "&|<>", "=", "!", "+", "-", "/", "*", "()[];?:,~", " ", "Unexpected symbol ", "push", "interpret", "Array", "op", "&&", "||", "?", "arr", "i", "val1", "~", "$", "trace", "r", "split", "val2", "|", "^", "&", "==", "!=", "===", "!==", "<", "<=", ">=", "<<", ">>", ">>>", "%", "(", "$=", "apply", "++", "--", "val3", ".(", "Unknown operation: ", "Error", "getCodeBlockEnd", "}", "{", "Math", "min", "Closing parenthesis not found", "Closing quote not found", "x", "y", "wc", "wall_count", "fc", "fall_count", "st", "ASSetPropFlags"
+ConstantPool "_global", "Code", "prototype", "isS", "indexOf", "isWhitespaceAt", "charAt", "isWhitespace", " \t\r\n", "isDigit", "charCodeAt", "isVarStart", "isVarMiddle", "indOf", "length", "execute", "Function", "Array", "slice", "apply", "parseAngled", "_x", "_y", "vx", "vy", "state", ">", ":;", "playerVars", "hasOwnProperty", "game", "player", "\'", "\' is not a player variable name", "CompilerError", ";", ",;", "Closing symbol not found", "Number not found", "isNaN", "\' is not a number", ",", "Expected \';\', found \',\'", "compile", "lex", "Parser", "program", "compileValue", "expression", "peek", "ind", "endInd", "$end", "str", "consume", "Code string ended unexpectedly", "", "$v", "$n", ".", "\"", "$s", "\\", "n", "t", "\n", "\t", "!+-*/%=&|<>^", "&|<>", "=", "!", "+", "-", "/", "*", "()[];?:,~", " ", "Unexpected symbol ", "push", "interpret", "op", "&&", "||", "?", "arr", "i", "val1", "~", "$", "trace", "r", "split", "val2", "|", "^", "&", "==", "!=", "===", "!==", "<", "<=", ">=", "<<", ">>", ">>>", "%", "(", "$=", "++", "--", "val3", ".(", "Unknown operation: ", "Error", "getCodeBlockEnd", "}", "{", "Math", "min", "Closing parenthesis not found", "Closing quote not found", "x", "y", "wc", "wall_count", "fc", "fall_count", "hc", "hit_count", "st", "ASSetPropFlags"
 Push "_global"
 GetVariable
 Push "Code"
 GetMember
 Not
 Not
-If loc2245
+If loc238d
 Push "_global"
 GetVariable
 Push "Code"
@@ -77,13 +77,13 @@ Less2
 Not
 PushDuplicate
 Not
-If loc049a
+If loc04d0
 Pop
 Push register2
 Push 57
 Greater
 Not
-loc049a:Return
+loc04d0:Return
 }
 SetMember
 Push register1
@@ -102,14 +102,14 @@ Less2
 Not
 PushDuplicate
 Not
-If loc04fa
+If loc0530
 Pop
 Push register2
 Push 90
 Greater
 Not
-loc04fa:PushDuplicate
-If loc0527
+loc0530:PushDuplicate
+If loc055d
 Pop
 Push register2
 Push 97
@@ -117,19 +117,19 @@ Less2
 Not
 PushDuplicate
 Not
-If loc0527
+If loc055d
 Pop
 Push register2
 Push 122
 Greater
 Not
-loc0527:PushDuplicate
-If loc053c
+loc055d:PushDuplicate
+If loc0572
 Pop
 Push register2
 Push 95
 StrictEquals
-loc053c:Return
+loc0572:Return
 }
 SetMember
 Push register1
@@ -142,7 +142,7 @@ GetVariable
 Push "isVarStart"
 CallMethod
 PushDuplicate
-If loc058f
+If loc05c5
 Pop
 Push register1
 Push 1
@@ -150,18 +150,18 @@ Push "Code"
 GetVariable
 Push "isDigit"
 CallMethod
-loc058f:Return
+loc05c5:Return
 }
 SetMember
 Push register1
 Push "indOf"
 DefineFunction2 "", 3, 4, false, false, true, false, true, false, true, false, false, 1, "str1", 2, "str2", 3, "ind" {
 Push register3
-If loc05ce
+If loc0604
 Push 0
 StoreRegister 3
 Pop
-loc05ce:Push register3
+loc0604:Push register3
 Push register2
 Push 2
 Push register1
@@ -173,15 +173,51 @@ Push register3
 Push -1
 StrictEquals
 Not
-If loc0610
+If loc0646
 Push register1
 Push "length"
 GetMember
 Return
-loc0610:Push register3
+loc0646:Push register3
 Return
 }
 SetMember
+Push register1
+Push "execute"
+DefineFunction2 "", 1, 2, false, false, true, false, true, false, true, false, false, 1, "fun" {
+Push register1
+Push "Function"
+GetVariable
+InstanceOf
+Not
+If loc0691
+Push 0
+Push register1
+Push undefined
+CallMethod
+Pop
+Jump loc06df
+loc0691:Push register1
+Push "Array"
+GetVariable
+InstanceOf
+Not
+If loc06df
+Push 1
+Push 1
+Push register1
+Push "slice"
+CallMethod
+Push null
+Push 2
+Push register1
+Push 0
+GetMember
+Push "apply"
+CallMethod
+Pop
+}
+loc06df:SetMember
 Push register1
 Push "parseAngled"
 DefineFunction2 "", 2, 12, false, true, true, false, true, false, true, false, false, 2, "str", 3, "ind" {
@@ -220,13 +256,13 @@ Pop
 Push -1
 StoreRegister 6
 Pop
-loc06f4:Push register3
+loc07bd:Push register3
 Push register2
 Push "length"
 GetMember
 Less2
 Not
-If loc0ba8
+If loc0c71
 Push register3
 Push 1
 Push register2
@@ -241,19 +277,19 @@ GetVariable
 Push "isWhitespace"
 CallMethod
 Not
-If loc074c
-Jump loc0b98
-loc074c:Push register7
+If loc0815
+Jump loc0c61
+loc0815:Push register7
 Push ">"
 StrictEquals
 Not
-If loc0762
-Jump loc0ba8
-loc0762:Push register5
+If loc082b
+Jump loc0c71
+loc082b:Push register5
 Push -1
 StrictEquals
 PushDuplicate
-If loc0796
+If loc085f
 Pop
 Push ":;"
 Push register7
@@ -263,23 +299,23 @@ GetVariable
 Push "isS"
 CallMethod
 Not
-loc0796:Not
-If loc07d2
+loc085f:Not
+If loc089b
 Push register5
 Push -1
 StrictEquals
 Not
-If loc07ba
+If loc0883
 Push register3
 StoreRegister 5
 Pop
-loc07ba:Push register3
+loc0883:Push register3
 Push 1
 Add2
 StoreRegister 6
 Pop
-Jump loc0b98
-loc07d2:Push register6
+Jump loc0c61
+loc089b:Push register6
 Push register5
 Push 2
 Push register2
@@ -296,7 +332,7 @@ GetMember
 Push "hasOwnProperty"
 CallMethod
 Not
-If loc0830
+If loc08f9
 Push "Code"
 GetVariable
 Push "playerVars"
@@ -305,7 +341,7 @@ Push register8
 GetMember
 StoreRegister 8
 Pop
-loc0830:Push register1
+loc08f9:Push register1
 Push "game"
 GetMember
 Push "player"
@@ -315,7 +351,7 @@ GetMember
 Push undefined
 StrictEquals
 Not
-If loc0877
+If loc0940
 Push register5
 Push "\'"
 Push register8
@@ -326,11 +362,11 @@ Push 2
 Push "CompilerError"
 NewObject
 Throw
-loc0877:Push register7
+loc0940:Push register7
 Push ";"
 StrictEquals
 Not
-If loc08a6
+If loc096f
 Push register4
 Push register8
 Delete
@@ -338,8 +374,8 @@ Pop
 Push -1
 StoreRegister 5
 Pop
-Jump loc0b98
-loc08a6:Push register4
+Jump loc0c61
+loc096f:Push register4
 Push register8
 Push 0
 Push 0
@@ -349,11 +385,11 @@ SetMember
 Push 0
 StoreRegister 9
 Pop
-loc08d7:Push register9
+loc09a0:Push register9
 Push 2
 Less2
 Not
-If loc0b8b
+If loc0c54
 Push -1
 StoreRegister 5
 Pop
@@ -367,13 +403,13 @@ Push register3
 Increment
 StoreRegister 3
 Pop
-loc091a:Push register3
+loc09e3:Push register3
 Push register2
 Push "length"
 GetMember
 Less2
 Not
-If loc09d6
+If loc0a9f
 Push register3
 Push 1
 Push register2
@@ -389,59 +425,59 @@ GetVariable
 Push "isS"
 CallMethod
 Not
-If loc0977
-Jump loc09d6
-loc0977:Push register7
+If loc0a40
+Jump loc0a9f
+loc0a40:Push register7
 Push 1
 Push "Code"
 GetVariable
 Push "isWhitespace"
 CallMethod
-If loc09c6
+If loc0a8f
 Push register5
 Push -1
 StrictEquals
 Not
-If loc09b3
+If loc0a7c
 Push register3
 StoreRegister 5
 Pop
-loc09b3:Push register3
+loc0a7c:Push register3
 Push 1
 Add2
 StoreRegister 6
 Pop
-loc09c6:Push register3
+loc0a8f:Push register3
 Increment
 StoreRegister 3
 Pop
-Jump loc091a
-loc09d6:Push register3
+Jump loc09e3
+loc0a9f:Push register3
 Push register2
 Push "length"
 GetMember
 Less2
 Not
 Not
-If loc0a07
+If loc0ad0
 Push register10
 Push "Closing symbol not found"
 Push 2
 Push "CompilerError"
 NewObject
 Throw
-loc0a07:Push register5
+loc0ad0:Push register5
 Push -1
 StrictEquals
 Not
-If loc0a34
+If loc0afd
 Push register3
 Push "Number not found"
 Push 2
 Push "CompilerError"
 NewObject
 Throw
-loc0a34:Push register6
+loc0afd:Push register6
 Push register5
 Push 2
 Push register2
@@ -455,7 +491,7 @@ Push 1
 Push "isNaN"
 CallFunction
 Not
-If loc0aad
+If loc0b76
 Push register5
 Push "\'"
 Push register6
@@ -471,57 +507,57 @@ Push 2
 Push "CompilerError"
 NewObject
 Throw
-loc0aad:Push register7
+loc0b76:Push register7
 Push ";"
 StrictEquals
 PushDuplicate
 Not
-If loc0ace
+If loc0b97
 Pop
 Push register9
 Push 0
 StrictEquals
-loc0ace:Not
-If loc0b25
+loc0b97:Not
+If loc0bee
 Push register11
 Push 0
 Less2
 Not
 Not
-If loc0b07
+If loc0bd0
 Push register4
 Push register8
 GetMember
 Push 1
 Push register11
 SetMember
-Jump loc0b20
-loc0b07:Push register4
+Jump loc0be9
+loc0bd0:Push register4
 Push register8
 GetMember
 Push 0
 Push register11
 SetMember
-loc0b20:Jump loc0b8b
-loc0b25:Push register7
+loc0be9:Jump loc0c54
+loc0bee:Push register7
 Push ","
 StrictEquals
 PushDuplicate
 Not
-If loc0b46
+If loc0c0f
 Pop
 Push register9
 Push 1
 StrictEquals
-loc0b46:Not
-If loc0b65
+loc0c0f:Not
+If loc0c2e
 Push register3
 Push "Expected \';\', found \',\'"
 Push 2
 Push "CompilerError"
 NewObject
 Throw
-loc0b65:Push register4
+loc0c2e:Push register4
 Push register8
 GetMember
 Push register9
@@ -531,16 +567,16 @@ Push register9
 Increment
 StoreRegister 9
 Pop
-Jump loc08d7
-loc0b8b:Push -1
+Jump loc09a0
+loc0c54:Push -1
 StoreRegister 5
 Pop
-loc0b98:Push register3
+loc0c61:Push register3
 Increment
 StoreRegister 3
 Pop
-Jump loc06f4
-loc0ba8:Push register3
+Jump loc07bd
+loc0c71:Push register3
 Push 1
 Add2
 Push register4
@@ -575,6 +611,27 @@ Push register4
 Return
 }
 SetMember
+Push register1
+Push "compileValue"
+DefineFunction2 "", 3, 4, false, false, true, false, true, false, true, false, false, 1, "str", 2, "startInd", 3, "endInd" {
+Push 0
+Push register3
+Push register2
+Push register1
+Push 3
+Push 0
+Push "Code"
+NewObject
+Push "lex"
+CallMethod
+Push 1
+Push "Parser"
+NewObject
+Push "expression"
+CallMethod
+Return
+}
+SetMember
 Push register2
 Push "peek"
 DefineFunction2 "", 0, 2, false, false, true, false, true, false, false, true, false {
@@ -587,10 +644,10 @@ GetMember
 Less2
 Not
 Not
-If loc0c84
+If loc0dc2
 Push "$end"
 Return
-loc0c84:Push register1
+loc0dc2:Push register1
 Push "ind"
 GetMember
 Push 1
@@ -614,7 +671,7 @@ GetMember
 Less2
 Not
 Not
-If loc0d05
+If loc0e43
 Push register1
 Push "endInd"
 GetMember
@@ -625,7 +682,7 @@ Push 2
 Push "CompilerError"
 NewObject
 Throw
-loc0d05:Push register1
+loc0e43:Push register1
 Push "ind"
 GetMember
 Push register1
@@ -655,28 +712,28 @@ Push register1
 Push "ind"
 Push register3
 PushDuplicate
-If loc0d9c
+If loc0eda
 Pop
 Push 0
-loc0d9c:SetMember
+loc0eda:SetMember
 Push register1
 Push "endInd"
 Push register4
 PushDuplicate
-If loc0dbe
+If loc0efc
 Pop
 Push register2
 Push "length"
 GetMember
-loc0dbe:SetMember
+loc0efc:SetMember
 Push 0
 InitArray
 StoreRegister 5
 Pop
-loc0dcd:Push true
+loc0f0b:Push true
 Not
-If loc1548
-loc0dd8:Push 0
+If loc1686
+loc0f16:Push 0
 Push register1
 Push "peek"
 CallMethod
@@ -686,14 +743,14 @@ GetVariable
 Push "isWhitespace"
 CallMethod
 Not
-If loc0e1e
+If loc0f5c
 Push 0
 Push register1
 Push "consume"
 CallMethod
 Pop
-Jump loc0dd8
-loc0e1e:Push ""
+Jump loc0f16
+loc0f5c:Push ""
 StoreRegister 6
 Pop
 Push 0
@@ -711,20 +768,20 @@ Push register7
 Push "$end"
 StrictEquals
 Not
-If loc0e66
-Jump loc1548
-loc0e66:Push register7
+If loc0fa4
+Jump loc1686
+loc0fa4:Push register7
 Push 1
 Push "Code"
 GetVariable
 Push "isVarStart"
 CallMethod
 Not
-If loc0ede
+If loc101c
 Push "$v"
 StoreRegister 6
 Pop
-loc0e8f:Push register6
+loc0fcd:Push register6
 Push 0
 Push register1
 Push "consume"
@@ -741,20 +798,20 @@ Push "Code"
 GetVariable
 Push "isVarMiddle"
 CallMethod
-If loc0e8f
-Jump loc151a
-loc0ede:Push register7
+If loc0fcd
+Jump loc1658
+loc101c:Push register7
 Push 1
 Push "Code"
 GetVariable
 Push "isDigit"
 CallMethod
 Not
-If loc0fbf
+If loc10fd
 Push "$n"
 StoreRegister 6
 Pop
-loc0f07:Push register6
+loc1045:Push register6
 Push 0
 Push register1
 Push "consume"
@@ -771,7 +828,7 @@ Push "Code"
 GetVariable
 Push "isDigit"
 CallMethod
-If loc0f07
+If loc1045
 Push 0
 Push register1
 Push "peek"
@@ -779,8 +836,8 @@ CallMethod
 Push "."
 StrictEquals
 Not
-If loc0fba
-loc0f70:Push register6
+If loc10f8
+loc10ae:Push register6
 Push 0
 Push register1
 Push "consume"
@@ -797,13 +854,13 @@ Push "Code"
 GetVariable
 Push "isDigit"
 CallMethod
-If loc0f70
-loc0fba:Jump loc151a
-loc0fbf:Push register7
+If loc10ae
+loc10f8:Jump loc1658
+loc10fd:Push register7
 Push "\""
 StrictEquals
 Not
-If loc111a
+If loc1258
 Push "$s"
 StoreRegister 6
 Pop
@@ -812,7 +869,7 @@ Push register1
 Push "consume"
 CallMethod
 Pop
-loc0fee:Push 0
+loc112c:Push 0
 Push register1
 Push "peek"
 CallMethod
@@ -820,7 +877,7 @@ Push "\""
 StrictEquals
 Not
 Not
-If loc1101
+If loc123f
 Push 0
 Push register1
 Push "peek"
@@ -828,7 +885,7 @@ CallMethod
 Push "\\"
 Equals2
 Not
-If loc10ca
+If loc1208
 Push 0
 Push register1
 Push "consume"
@@ -841,25 +898,25 @@ CallMethod
 StoreRegister 0
 Push "n"
 StrictEquals
-If loc1078
+If loc11b6
 Push register0
 Push "t"
 StrictEquals
-If loc108d
-Jump loc10a2
-loc1078:Push register6
+If loc11cb
+Jump loc11e0
+loc11b6:Push register6
 Push "\n"
 Add2
 StoreRegister 6
 Pop
-Jump loc10c5
-loc108d:Push register6
+Jump loc1203
+loc11cb:Push register6
 Push "\t"
 Add2
 StoreRegister 6
 Pop
-Jump loc10c5
-loc10a2:Push register6
+Jump loc1203
+loc11e0:Push register6
 Push 0
 Push register1
 Push "peek"
@@ -867,9 +924,9 @@ CallMethod
 Add2
 StoreRegister 6
 Pop
-Jump loc10c5
-loc10c5:Jump loc10e8
-loc10ca:Push register6
+Jump loc1203
+loc1203:Jump loc1226
+loc1208:Push register6
 Push 0
 Push register1
 Push "peek"
@@ -877,19 +934,19 @@ CallMethod
 Add2
 StoreRegister 6
 Pop
-loc10e8:Push 0
+loc1226:Push 0
 Push register1
 Push "consume"
 CallMethod
 Pop
-Jump loc0fee
-loc1101:Push 0
+Jump loc112c
+loc123f:Push 0
 Push register1
 Push "consume"
 CallMethod
 Pop
-Jump loc151a
-loc111a:Push "!+-*/%=&|<>^"
+Jump loc1658
+loc1258:Push "!+-*/%=&|<>^"
 Push register7
 Push 2
 Push "Code"
@@ -897,7 +954,7 @@ GetVariable
 Push "isS"
 CallMethod
 Not
-If loc1435
+If loc1573
 Push 0
 Push register1
 Push "consume"
@@ -913,7 +970,7 @@ Push "isS"
 CallMethod
 PushDuplicate
 Not
-If loc1195
+If loc12d3
 Pop
 Push 0
 Push register1
@@ -921,8 +978,8 @@ Push "peek"
 CallMethod
 Push register7
 StrictEquals
-loc1195:Not
-If loc1209
+loc12d3:Not
+If loc1347
 Push register6
 Push 0
 Push register1
@@ -936,7 +993,7 @@ Push ">"
 StrictEquals
 PushDuplicate
 Not
-If loc11e5
+If loc1323
 Pop
 Push 0
 Push register1
@@ -944,8 +1001,8 @@ Push "peek"
 CallMethod
 Push ">"
 StrictEquals
-loc11e5:Not
-If loc1209
+loc1323:Not
+If loc1347
 Push register6
 Push 0
 Push register1
@@ -954,14 +1011,14 @@ CallMethod
 Add2
 StoreRegister 6
 Pop
-loc1209:Push 0
+loc1347:Push 0
 Push register1
 Push "peek"
 CallMethod
 Push "="
 StrictEquals
 Not
-If loc12ad
+If loc13eb
 Push register6
 Push 0
 Push register1
@@ -974,14 +1031,14 @@ Push register7
 Push "!"
 StrictEquals
 PushDuplicate
-If loc1263
+If loc13a1
 Pop
 Push register7
 Push "="
 StrictEquals
-loc1263:PushDuplicate
+loc13a1:PushDuplicate
 Not
-If loc1284
+If loc13c2
 Pop
 Push 0
 Push register1
@@ -989,8 +1046,8 @@ Push "peek"
 CallMethod
 Push "="
 StrictEquals
-loc1284:Not
-If loc12a8
+loc13c2:Not
+If loc13e6
 Push register6
 Push 0
 Push register1
@@ -999,26 +1056,26 @@ CallMethod
 Add2
 StoreRegister 6
 Pop
-loc12a8:Jump loc1430
-loc12ad:Push 0
+loc13e6:Jump loc156e
+loc13eb:Push 0
 Push register1
 Push "peek"
 CallMethod
 Push register7
 StrictEquals
 Not
-If loc1379
+If loc14b7
 Push register7
 Push "+"
 StrictEquals
 PushDuplicate
-If loc12e9
+If loc1427
 Pop
 Push register7
 Push "-"
 StrictEquals
-loc12e9:Not
-If loc1312
+loc1427:Not
+If loc1450
 Push register6
 Push 0
 Push register1
@@ -1027,16 +1084,16 @@ CallMethod
 Add2
 StoreRegister 6
 Pop
-Jump loc1374
-loc1312:Push register7
+Jump loc14b2
+loc1450:Push register7
 Push "/"
 StrictEquals
 Not
-If loc1374
+If loc14b2
 Push ""
 StoreRegister 6
 Pop
-loc132d:Push 0
+loc146b:Push 0
 Push register1
 Push "peek"
 CallMethod
@@ -1045,7 +1102,7 @@ StrictEquals
 Not
 PushDuplicate
 Not
-If loc1369
+If loc14a7
 Pop
 Push 0
 Push register1
@@ -1054,16 +1111,16 @@ CallMethod
 Push "\n"
 StrictEquals
 Not
-loc1369:Not
-If loc1374
-Jump loc132d
-loc1374:Jump loc1430
-loc1379:Push register7
+loc14a7:Not
+If loc14b2
+Jump loc146b
+loc14b2:Jump loc156e
+loc14b7:Push register7
 Push "/"
 StrictEquals
 PushDuplicate
 Not
-If loc13a5
+If loc14e3
 Pop
 Push 0
 Push register1
@@ -1071,8 +1128,8 @@ Push "peek"
 CallMethod
 Push "*"
 StrictEquals
-loc13a5:Not
-If loc1430
+loc14e3:Not
+If loc156e
 Push ""
 StoreRegister 6
 Pop
@@ -1081,9 +1138,9 @@ Push register1
 Push "consume"
 CallMethod
 Pop
-loc13c9:Push true
+loc1507:Push true
 Not
-If loc1430
+If loc156e
 Push 0
 Push register1
 Push "consume"
@@ -1091,7 +1148,7 @@ CallMethod
 Push "*"
 StrictEquals
 Not
-If loc142b
+If loc1569
 Push 0
 Push register1
 Push "peek"
@@ -1099,16 +1156,16 @@ CallMethod
 Push "/"
 StrictEquals
 Not
-If loc142b
+If loc1569
 Push 0
 Push register1
 Push "consume"
 CallMethod
 Pop
-Jump loc1430
-loc142b:Jump loc13c9
-loc1430:Jump loc151a
-loc1435:Push "()[];?:,~"
+Jump loc156e
+loc1569:Jump loc1507
+loc156e:Jump loc1658
+loc1573:Push "()[];?:,~"
 Push register7
 Push 2
 Push "Code"
@@ -1116,19 +1173,19 @@ GetVariable
 Push "isS"
 CallMethod
 Not
-If loc1476
+If loc15b4
 Push 0
 Push register1
 Push "consume"
 CallMethod
 StoreRegister 6
 Pop
-Jump loc151a
-loc1476:Push register7
+Jump loc1658
+loc15b4:Push register7
 Push "."
 StrictEquals
 Not
-If loc14f5
+If loc1633
 Push 0
 Push register1
 Push "consume"
@@ -1145,7 +1202,7 @@ GetVariable
 Push "isWhitespace"
 CallMethod
 Not
-If loc14f0
+If loc162e
 Push register6
 Push " "
 Add2
@@ -1156,8 +1213,8 @@ Push register1
 Push "consume"
 CallMethod
 Pop
-loc14f0:Jump loc151a
-loc14f5:Push register1
+loc162e:Jump loc1658
+loc1633:Push register1
 Push "ind"
 GetMember
 Push "Unexpected symbol "
@@ -1167,9 +1224,9 @@ Push 2
 Push "CompilerError"
 NewObject
 Throw
-loc151a:Push register6
+loc1658:Push register6
 Not
-If loc1543
+If loc1681
 Push register8
 Push register6
 Push 2
@@ -1177,8 +1234,8 @@ Push register5
 Push "push"
 CallMethod
 Pop
-loc1543:Jump loc0dcd
-loc1548:Push register1
+loc1681:Jump loc0f0b
+loc1686:Push register1
 Push "ind"
 GetMember
 Push "$end"
@@ -1198,10 +1255,10 @@ Push register1
 Push "Array"
 GetVariable
 InstanceOf
-If loc15a5
+If loc16e3
 Push register1
 Return
-loc15a5:Push "op"
+loc16e3:Push "op"
 Push register1
 Push 0
 GetMember
@@ -1211,25 +1268,25 @@ GetVariable
 StoreRegister 0
 Push "&&"
 StrictEquals
-If loc1613
+If loc1751
 Push register0
 Push "||"
 StrictEquals
-If loc1660
+If loc179e
 Push register0
 Push "?"
 StrictEquals
-If loc16ac
+If loc17ea
 Push register0
 Push ","
 StrictEquals
-If loc171e
+If loc185c
 Push register0
 Push ";"
 StrictEquals
-If loc17a1
-Jump loc17ff
-loc1613:Push register1
+If loc18df
+Jump loc193d
+loc1751:Push register1
 Push 1
 GetMember
 Push 1
@@ -1239,7 +1296,7 @@ Push "interpret"
 CallMethod
 PushDuplicate
 Not
-If loc165f
+If loc179d
 Pop
 Push register1
 Push 2
@@ -1249,8 +1306,8 @@ Push "Code"
 GetVariable
 Push "interpret"
 CallMethod
-loc165f:Return
-loc1660:Push register1
+loc179d:Return
+loc179e:Push register1
 Push 1
 GetMember
 Push 1
@@ -1259,7 +1316,7 @@ GetVariable
 Push "interpret"
 CallMethod
 PushDuplicate
-If loc16ab
+If loc17e9
 Pop
 Push register1
 Push 2
@@ -1269,8 +1326,8 @@ Push "Code"
 GetVariable
 Push "interpret"
 CallMethod
-loc16ab:Return
-loc16ac:Push register1
+loc17e9:Return
+loc17ea:Push register1
 Push 1
 GetMember
 Push 1
@@ -1279,7 +1336,7 @@ GetVariable
 Push "interpret"
 CallMethod
 Not
-If loc16fb
+If loc1839
 Push register1
 Push 2
 GetMember
@@ -1288,8 +1345,8 @@ Push "Code"
 GetVariable
 Push "interpret"
 CallMethod
-Jump loc171d
-loc16fb:Push register1
+Jump loc185b
+loc1839:Push register1
 Push 3
 GetMember
 Push 1
@@ -1297,22 +1354,22 @@ Push "Code"
 GetVariable
 Push "interpret"
 CallMethod
-loc171d:Return
-loc171e:Push "arr"
+loc185b:Return
+loc185c:Push "arr"
 Push 0
 InitArray
 DefineLocal
 Push "i"
 Push 1
 DefineLocal
-loc173b:Push "i"
+loc1879:Push "i"
 GetVariable
 Push register1
 Push "length"
 GetMember
 Less2
 Not
-If loc179a
+If loc18d8
 Push register1
 Push "i"
 GetVariable
@@ -1333,21 +1390,21 @@ Push "i"
 GetVariable
 Increment
 SetVariable
-Jump loc173b
-loc179a:Push "arr"
+Jump loc1879
+loc18d8:Push "arr"
 GetVariable
 Return
-loc17a1:Push "i"
+loc18df:Push "i"
 Push 1
 DefineLocal
-loc17af:Push "i"
+loc18ed:Push "i"
 GetVariable
 Push register1
 Push "length"
 GetMember
 Less2
 Not
-If loc17fa
+If loc1938
 Push register1
 Push "i"
 GetVariable
@@ -1363,10 +1420,10 @@ Push "i"
 GetVariable
 Increment
 SetVariable
-Jump loc17af
-loc17fa:Push undefined
+Jump loc18ed
+loc1938:Push undefined
 Return
-loc17ff:Push "val1"
+loc193d:Push "val1"
 Push register1
 Push 1
 GetMember
@@ -1381,30 +1438,30 @@ GetVariable
 StoreRegister 2
 Push "!"
 StrictEquals
-If loc1871
+If loc19af
 Push register2
 Push "~"
 StrictEquals
-If loc1879
+If loc19b7
 Push register2
 Push "$"
 StrictEquals
-If loc188d
+If loc19cb
 Push register2
 Push "trace"
 StrictEquals
-If loc1948
-Jump loc1954
-loc1871:Push "val1"
+If loc1a86
+Jump loc1a92
+loc19af:Push "val1"
 GetVariable
 Not
 Return
-loc1879:Push "val1"
+loc19b7:Push "val1"
 GetVariable
 Push 4294967295.0
 BitXor
 Return
-loc188d:Push "r"
+loc19cb:Push "r"
 Push "val1"
 GetVariable
 GetVariable
@@ -1414,7 +1471,7 @@ GetVariable
 Push undefined
 StrictEquals
 Not
-If loc1941
+If loc1a7f
 Push "arr"
 Push "."
 Push 1
@@ -1433,7 +1490,7 @@ SetVariable
 Push "i"
 Push 1
 DefineLocal
-loc18ee:Push "i"
+loc1a2c:Push "i"
 GetVariable
 Push "arr"
 GetVariable
@@ -1442,12 +1499,12 @@ GetMember
 Less2
 PushDuplicate
 Not
-If loc190f
+If loc1a4d
 Pop
 Push "r"
 GetVariable
-loc190f:Not
-If loc1941
+loc1a4d:Not
+If loc1a7f
 Push "r"
 Push "r"
 GetVariable
@@ -1463,16 +1520,16 @@ Push "i"
 GetVariable
 Increment
 SetVariable
-Jump loc18ee
-loc1941:Push "r"
+Jump loc1a2c
+loc1a7f:Push "r"
 GetVariable
 Return
-loc1948:Push "val1"
+loc1a86:Push "val1"
 GetVariable
 Trace
 Push undefined
 Return
-loc1954:Push "val2"
+loc1a92:Push "val2"
 Push register1
 Push 2
 GetMember
@@ -1487,217 +1544,217 @@ GetVariable
 StoreRegister 3
 Push "|"
 StrictEquals
-If loc1ae6
+If loc1c24
 Push register3
 Push "^"
 StrictEquals
-If loc1af4
+If loc1c32
 Push register3
 Push "&"
 StrictEquals
-If loc1b02
+If loc1c40
 Push register3
 Push "=="
 StrictEquals
-If loc1b10
+If loc1c4e
 Push register3
 Push "!="
 StrictEquals
-If loc1b1e
+If loc1c5c
 Push register3
 Push "==="
 StrictEquals
-If loc1b2d
+If loc1c6b
 Push register3
 Push "!=="
 StrictEquals
-If loc1b3b
+If loc1c79
 Push register3
 Push "<"
 StrictEquals
-If loc1b4a
+If loc1c88
 Push register3
 Push ">"
 StrictEquals
-If loc1b58
+If loc1c96
 Push register3
 Push "<="
 StrictEquals
-If loc1b66
+If loc1ca4
 Push register3
 Push ">="
 StrictEquals
-If loc1b75
+If loc1cb3
 Push register3
 Push "<<"
 StrictEquals
-If loc1b84
+If loc1cc2
 Push register3
 Push ">>"
 StrictEquals
-If loc1b92
+If loc1cd0
 Push register3
 Push ">>>"
 StrictEquals
-If loc1ba0
+If loc1cde
 Push register3
 Push "+"
 StrictEquals
-If loc1bae
+If loc1cec
 Push register3
 Push "-"
 StrictEquals
-If loc1bbc
+If loc1cfa
 Push register3
 Push "*"
 StrictEquals
-If loc1bca
+If loc1d08
 Push register3
 Push "/"
 StrictEquals
-If loc1bd8
+If loc1d16
 Push register3
 Push "%"
 StrictEquals
-If loc1be6
+If loc1d24
 Push register3
 Push "."
 StrictEquals
-If loc1bf4
+If loc1d32
 Push register3
 Push "("
 StrictEquals
-If loc1c02
+If loc1d40
 Push register3
 Push "$="
 StrictEquals
-If loc1c21
-Jump loc1d13
-loc1ae6:Push "val1"
+If loc1d5f
+Jump loc1e51
+loc1c24:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 BitOr
 Return
-loc1af4:Push "val1"
+loc1c32:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 BitXor
 Return
-loc1b02:Push "val1"
+loc1c40:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 BitAnd
 Return
-loc1b10:Push "val1"
+loc1c4e:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 Equals2
 Return
-loc1b1e:Push "val1"
+loc1c5c:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 Equals2
 Not
 Return
-loc1b2d:Push "val1"
+loc1c6b:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 StrictEquals
 Return
-loc1b3b:Push "val1"
+loc1c79:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 StrictEquals
 Not
 Return
-loc1b4a:Push "val1"
+loc1c88:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 Less2
 Return
-loc1b58:Push "val1"
+loc1c96:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 Greater
 Return
-loc1b66:Push "val1"
+loc1ca4:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 Greater
 Not
 Return
-loc1b75:Push "val1"
+loc1cb3:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 Less2
 Not
 Return
-loc1b84:Push "val1"
+loc1cc2:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 BitLShift
 Return
-loc1b92:Push "val1"
+loc1cd0:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 BitRShift
 Return
-loc1ba0:Push "val1"
+loc1cde:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 BitURShift
 Return
-loc1bae:Push "val1"
+loc1cec:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 Add2
 Return
-loc1bbc:Push "val1"
+loc1cfa:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 Subtract
 Return
-loc1bca:Push "val1"
+loc1d08:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 Multiply
 Return
-loc1bd8:Push "val1"
+loc1d16:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 Divide
 Return
-loc1be6:Push "val1"
+loc1d24:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 Modulo
 Return
-loc1bf4:Push "val1"
+loc1d32:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
 GetMember
 Return
-loc1c02:Push "val2"
+loc1d40:Push "val2"
 GetVariable
 Push null
 Push 2
@@ -1706,28 +1763,28 @@ GetVariable
 Push "apply"
 CallMethod
 Return
-loc1c21:Push register1
+loc1d5f:Push register1
 Push "length"
 GetMember
 Push 4
 StrictEquals
 Not
-If loc1cff
+If loc1e3d
 Push register1
 Push 3
 GetMember
 Push "++"
 StrictEquals
 PushDuplicate
-If loc1c6a
+If loc1da8
 Pop
 Push register1
 Push 3
 GetMember
 Push "--"
 StrictEquals
-loc1c6a:Not
-If loc1cc1
+loc1da8:Not
+If loc1dff
 Push "val2"
 Push "val1"
 GetVariable
@@ -1743,16 +1800,16 @@ GetMember
 Push "++"
 StrictEquals
 Not
-If loc1cb0
+If loc1dee
 Push 1
-Jump loc1cb8
-loc1cb0:Push -1
-loc1cb8:Add2
+Jump loc1df6
+loc1dee:Push -1
+loc1df6:Add2
 SetVariable
 Push "val2"
 GetVariable
 Return
-loc1cc1:Push "val2"
+loc1dff:Push "val2"
 Push "val2"
 GetVariable
 Push "val1"
@@ -1769,7 +1826,7 @@ GetVariable
 Push "interpret"
 CallMethod
 SetVariable
-loc1cff:Push "val1"
+loc1e3d:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
@@ -1777,7 +1834,7 @@ SetVariable
 Push "val2"
 GetVariable
 Return
-loc1d13:Push "val3"
+loc1e51:Push "val3"
 Push register1
 Push 3
 GetMember
@@ -1792,34 +1849,34 @@ GetVariable
 StoreRegister 4
 Push "="
 StrictEquals
-If loc1d65
+If loc1ea3
 Push register4
 Push ".("
 StrictEquals
-If loc1e72
-Jump loc1e9a
-loc1d65:Push register1
+If loc1fb0
+Jump loc1fd8
+loc1ea3:Push register1
 Push "length"
 GetMember
 Push 5
 StrictEquals
 Not
-If loc1e55
+If loc1f93
 Push register1
 Push 4
 GetMember
 Push "++"
 StrictEquals
 PushDuplicate
-If loc1dae
+If loc1eec
 Pop
 Push register1
 Push 4
 GetMember
 Push "--"
 StrictEquals
-loc1dae:Not
-If loc1e11
+loc1eec:Not
+If loc1f4f
 Push "val3"
 Push "val1"
 GetVariable
@@ -1839,16 +1896,16 @@ GetMember
 Push "++"
 StrictEquals
 Not
-If loc1e00
+If loc1f3e
 Push 1
-Jump loc1e08
-loc1e00:Push -1
-loc1e08:Add2
+Jump loc1f46
+loc1f3e:Push -1
+loc1f46:Add2
 SetMember
 Push "val3"
 GetVariable
 Return
-loc1e11:Push "val3"
+loc1f4f:Push "val3"
 Push "val3"
 GetVariable
 Push "val1"
@@ -1867,7 +1924,7 @@ GetVariable
 Push "interpret"
 CallMethod
 SetVariable
-loc1e55:Push "val1"
+loc1f93:Push "val1"
 GetVariable
 Push "val2"
 GetVariable
@@ -1877,7 +1934,7 @@ StoreRegister 5
 SetMember
 Push register5
 Return
-loc1e72:Push "val3"
+loc1fb0:Push "val3"
 GetVariable
 Push "val1"
 GetVariable
@@ -1890,7 +1947,7 @@ GetMember
 Push "apply"
 CallMethod
 Return
-loc1e9a:Push "Unknown operation: "
+loc1fd8:Push "Unknown operation: "
 Push "op"
 GetVariable
 Add2
@@ -1915,14 +1972,14 @@ Pop
 Push 0
 StoreRegister 6
 Pop
-loc1f0b:Push true
+loc2049:Push true
 Not
-If loc21be
+If loc22fc
 Push register3
 Push register4
 Greater
 Not
-If loc1f4f
+If loc208d
 Push register3
 Push "}"
 Push register1
@@ -1933,11 +1990,11 @@ Push "indOf"
 CallMethod
 StoreRegister 4
 Pop
-loc1f4f:Push register3
+loc208d:Push register3
 Push register5
 Greater
 Not
-If loc1f88
+If loc20c6
 Push register3
 Push "{"
 Push register1
@@ -1948,7 +2005,7 @@ Push "indOf"
 CallMethod
 StoreRegister 5
 Pop
-loc1f88:Push register3
+loc20c6:Push register3
 Push "\""
 Push register1
 Push 3
@@ -1976,13 +2033,13 @@ Push register4
 Less2
 PushDuplicate
 Not
-If loc2005
+If loc2143
 Pop
 Push register5
 Push register7
 Less2
-loc2005:Not
-If loc202e
+loc2143:Not
+If loc216c
 Push register6
 Increment
 StoreRegister 6
@@ -1992,31 +2049,31 @@ Push 1
 Add2
 StoreRegister 3
 Pop
-Jump loc1f0b
-loc202e:Push register4
+Jump loc2049
+loc216c:Push register4
 Push register7
 StrictEquals
 Not
-If loc2058
+If loc2196
 Push register3
 Push "Closing parenthesis not found"
 Push 2
 Push "CompilerError"
 NewObject
 Throw
-loc2058:Push register4
+loc2196:Push register4
 Push register7
 Less2
 Not
-If loc20a6
+If loc21e4
 Push register6
 Push 0
 StrictEquals
 Not
-If loc2083
+If loc21c1
 Push register4
 Return
-loc2083:Push register6
+loc21c1:Push register6
 Decrement
 StoreRegister 6
 Pop
@@ -2025,8 +2082,8 @@ Push 1
 Add2
 StoreRegister 3
 Pop
-Jump loc1f0b
-loc20a6:Push register7
+Jump loc2049
+loc21e4:Push register7
 Push 1
 Push register1
 Push "charAt"
@@ -2038,9 +2095,9 @@ Push 1
 Add2
 StoreRegister 9
 Pop
-loc20d6:Push true
+loc2214:Push true
 Not
-If loc21b9
+If loc22f7
 Push register9
 Push register8
 Push 2
@@ -2053,19 +2110,19 @@ Push register9
 Push -1
 StrictEquals
 Not
-If loc2130
+If loc226e
 Push register3
 Push "Closing quote not found"
 Push 2
 Push "CompilerError"
 NewObject
 Throw
-loc2130:Push register9
+loc226e:Push register9
 Push 1
 Subtract
 StoreRegister 10
 Pop
-loc2143:Push register10
+loc2281:Push register10
 Push 1
 Push register1
 Push "charAt"
@@ -2073,33 +2130,33 @@ CallMethod
 Push "\\"
 StrictEquals
 Not
-If loc2177
+If loc22b5
 Push register10
 Decrement
 StoreRegister 10
 Pop
-Jump loc2143
-loc2177:Push register9
+Jump loc2281
+loc22b5:Push register9
 Push register10
 Subtract
 Push 1
 BitAnd
 Not
-If loc21a9
+If loc22e7
 Push register9
 Push 1
 Add2
 StoreRegister 3
 Pop
-Jump loc21b9
-loc21a9:Push register9
+Jump loc22f7
+loc22e7:Push register9
 Increment
 StoreRegister 9
 Pop
-Jump loc20d6
-loc21b9:Jump loc1f0b
+Jump loc2214
+loc22f7:Jump loc2049
 }
-loc21be:SetMember
+loc22fc:SetMember
 Push register1
 Push "playerVars"
 Push "x"
@@ -2114,9 +2171,11 @@ Push "wc"
 Push "wall_count"
 Push "fc"
 Push "fall_count"
+Push "hc"
+Push "hit_count"
 Push "st"
 Push "state"
-Push 7
+Push 8
 InitObject
 SetMember
 Push 1
@@ -2130,4 +2189,4 @@ GetMember
 Push 3
 Push "ASSetPropFlags"
 CallFunction
-loc2245:Pop
+loc238d:Pop

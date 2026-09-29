@@ -3,6 +3,8 @@ class Main
 	static var holders;
 	static var scriptStack;
 	static var spriteInfo;
+	static var prevFrameStamp = 0;
+	static var prevFrameTime = 0;
 	function Main()
 	{
 	}
@@ -21,15 +23,28 @@ class Main
 	}
 	static function levelInit()
 	{
-		var _loc2_ = _root.game;
-		Main.holders = [_loc2_.heart_holder,_loc2_.object_holder,_loc2_.safe_holder,_loc2_.danger_holder,_loc2_.laser_holder,_loc2_.player_holder,_loc2_.grow_holder,_loc2_.bomb_holder,_loc2_.missile_holder,_loc2_.splash_holder,_loc2_.acid_holder,_loc2_.explosion_holder];
+		var g = _root.game;
+		Main.holders = [g.heart_holder,g.object_holder,g.safe_holder,g.danger_holder,g.laser_holder,g.player_holder,g.grow_holder,g.bomb_holder,g.missile_holder,g.splash_holder,g.acid_holder,g.explosion_holder];
 		_root.popup_holder.stopped = true;
-		TAS.levelInit();
 		Utils.levelInit();
+		TAS.levelInit();
 		Main.stopAll();
+	}
+	static function endFrame()
+	{
+		if(TAS.specialMode === 2 && TAS.totalFrame !== TAS.specialModeData[1])
+		{
+			TAS.specialMode = 0;
+		}
+		if(TAS.textRefresh)
+		{
+			TAS.updateText();
+		}
 	}
 	static function metaUpdate()
 	{
+		Main.prevFrameTime = getTimer() - Main.prevFrameStamp;
+		Main.prevFrameStamp = getTimer();
 		if(TAS.delayedCaretPos != -1)
 		{
 			Selection.setFocus(Windows.clip.inputWindow.inputField);
@@ -45,7 +60,6 @@ class Main
 			else
 			{
 				Main.gameUpdate();
-				TAS.updateText();
 				Main.stopAll();
 			}
 		}
@@ -58,74 +72,72 @@ class Main
 		Main.executeScripts(Main.scriptStack);
 		Main.scriptStack = [];
 		Main.updateAnimations();
-		var _loc2_ = Main.scriptStack;
+		var oldStack = Main.scriptStack;
 		Main.scriptStack = [];
-		Main.executeScripts(_loc2_);
+		Main.executeScripts(oldStack);
 		_root.game.doEnterFrame();
 		_root.doEnterFrameBeacon();
 		Main.executeScripts(Main.scriptStack);
 		TAS.resetInputCheckers();
+		TAS.updateGhosts();
+		TAS.textRefresh = true;
 	}
 	static function executeScripts(stack)
 	{
-		var _loc2_ = 0;
-		while(_loc2_ < stack.length)
+		var i = 0;
+		while(i < stack.length)
 		{
-			stack[_loc2_ + 1](stack[_loc2_]);
-			_loc2_ += 2;
+			stack[i + 1](stack[i]);
+			i += 2;
 		}
 	}
 	static function updateAnimations()
 	{
-		var _loc2_ = 0;
-		var _loc4_;
-		while(_loc2_ < Main.holders.length)
+		var i = 0;
+		while(i < Main.holders.length)
 		{
-			for(var _loc3_ in Main.holders[_loc2_])
+			for(var objName in Main.holders[i])
 			{
-				_loc4_ = Main.holders[_loc2_][_loc3_];
-				Main.advanceAnimation(_loc4_,_loc4_.chid);
+				var obj = Main.holders[i][objName];
+				Main.advanceAnimation(obj,obj.chid);
 			}
-			_loc2_ = _loc2_ + 1;
+			i++;
 		}
 		Main.advanceAnimation(_root.popup_holder,_root.popup_holder.chid);
 	}
 	static function iterateOnChildren(obj, childArray, fun1, fun2)
 	{
-		var _loc5_ = 0;
-		var _loc6_;
-		var _loc7_;
-		while(_loc5_ < childArray.length)
+		var i = 0;
+		while(i < childArray.length)
 		{
-			_loc6_ = obj[childArray[_loc5_]];
-			if(_loc6_)
+			var curChild = obj[childArray[i]];
+			if(curChild)
 			{
-				_loc7_ = Main.determineChildChid(obj,childArray[_loc5_ + 1]);
-				if(!_loc6_.justExisted)
+				var childChid = Main.determineChildChid(obj,childArray[i + 1]);
+				if(!curChild.justExisted)
 				{
-					fun1(_loc6_,_loc7_);
+					fun1(curChild,childChid);
 				}
 				else if(fun2)
 				{
-					fun2(_loc6_,_loc7_);
+					fun2(curChild,childChid);
 				}
 			}
-			_loc5_ += 2;
+			i += 2;
 		}
 	}
 	static function determineChildChid(obj, chid)
 	{
-		var _loc3_;
 		if(typeof chid != "number")
 		{
-			_loc3_ = 0;
-			while(_loc3_ < chid.length)
+			var i = 0;
+			while(i < chid.length)
 			{
-				if(obj._currentframe >= chid[_loc3_])
+				if(obj._currentframe >= chid[i])
 				{
-					return chid[_loc3_ + 1];
+					return chid[i + 1];
 				}
-				_loc3_ += 2;
+				i += 2;
 			}
 			return 0;
 		}
@@ -137,25 +149,24 @@ class Main
 		{
 			return undefined;
 		}
-		var _loc3_ = Main.spriteInfo["m" + chid];
-		if(!_loc3_)
+		var info = Main.spriteInfo["m" + chid];
+		if(!info)
 		{
 			return undefined;
 		}
-		var _loc4_;
-		if(_loc3_.length > 1)
+		if(info.length > 1)
 		{
-			_loc4_ = 0;
-			while(_loc4_ < _loc3_[1].length)
+			var i = 0;
+			while(i < info[1].length)
 			{
-				if(obj[_loc3_[1][_loc4_]])
+				if(obj[info[1][i]])
 				{
-					obj[_loc3_[1][_loc4_]].justExisted = true;
+					obj[info[1][i]].justExisted = true;
 				}
-				_loc4_ += 2;
+				i += 2;
 			}
 		}
-		if(_loc3_[0] && !obj.stopped)
+		if(info[0] && !obj.stopped)
 		{
 			if(obj._currentframe >= obj._totalframes)
 			{
@@ -165,17 +176,17 @@ class Main
 			{
 				obj.nextFrame();
 			}
-			if(typeof _loc3_[0] == "object")
+			if(typeof info[0] == "object")
 			{
-				if(_loc3_[0]["f" + obj._currentframe])
+				if(info[0]["f" + obj._currentframe])
 				{
-					Main.scriptStack.push(obj,_loc3_[0]["f" + obj._currentframe]);
+					Main.scriptStack.push(obj,info[0]["f" + obj._currentframe]);
 				}
 			}
 		}
-		if(_loc3_.length > 1)
+		if(info.length > 1)
 		{
-			Main.iterateOnChildren(obj,_loc3_[1],Main.checkFrameScript,Main.advanceAnimation);
+			Main.iterateOnChildren(obj,info[1],Main.checkFrameScript,Main.advanceAnimation);
 		}
 	}
 	static function checkFrameScript(obj, chid)
@@ -184,65 +195,62 @@ class Main
 		{
 			return undefined;
 		}
-		var _loc3_ = Main.spriteInfo["m" + chid];
-		if(!_loc3_)
+		var info = Main.spriteInfo["m" + chid];
+		if(!info)
 		{
 			return undefined;
 		}
-		if(typeof _loc3_[0] == "object")
+		if(typeof info[0] == "object")
 		{
-			if(_loc3_[0]["f" + obj._currentframe])
+			if(info[0]["f" + obj._currentframe])
 			{
-				Main.scriptStack.push(obj,_loc3_[0]["f" + obj._currentframe]);
+				Main.scriptStack.push(obj,info[0]["f" + obj._currentframe]);
 			}
 		}
-		if(_loc3_.length > 1)
+		if(info.length > 1)
 		{
-			Main.iterateOnChildren(obj,_loc3_[1],Main.checkFrameScript,Main.checkFrameScript);
+			Main.iterateOnChildren(obj,info[1],Main.checkFrameScript,Main.checkFrameScript);
 		}
 	}
 	static function _gotoAnd(that, frame, chid, doStop)
 	{
-		var _loc6_;
-		var _loc7_;
-		var _loc8_;
 		if(_root.aMode)
 		{
 			if(chid)
 			{
-				_loc6_ = Main.spriteInfo["m" + chid];
-				if(!_loc6_)
+				var info = Main.spriteInfo["m" + chid];
+				if(!info)
 				{
 					Main._gotoAnd(that,frame,0,doStop);
 					return undefined;
 				}
-				if(_loc6_.length > 1)
+				if(info.length > 1)
 				{
-					_loc7_ = 0;
-					while(_loc7_ < _loc6_[1].length)
+					var i = 0;
+					while(i < info[1].length)
 					{
-						if(that[_loc6_[1][_loc7_]])
+						if(that[info[1][i]])
 						{
-							that[_loc6_[1][_loc7_]].justExisted = true;
+							that[info[1][i]].justExisted = true;
 						}
-						_loc7_ += 2;
+						i += 2;
 					}
 				}
-				_loc8_ = that._currentframe;
+				var oldFrame = that._currentframe;
 				that.gotoAndStop(frame);
 				that.stopped = doStop;
-				if(_loc8_ != that._currentframe)
+				if(oldFrame != that._currentframe)
 				{
-					if(typeof _loc6_[0] == "object")
+					if(typeof info[0] == "object")
 					{
-						if(_loc6_[0]["f" + that._currentframe])
+						if(info[0]["f" + that._currentframe])
 						{
-							Main.scriptStack.push(that,_loc6_[0]["f" + that._currentframe]);
+							Main.scriptStack.push(that,info[0]["f" + that._currentframe]);
 						}
 					}
-					if(_loc6_.length > 1)
+					if(info.length > 1)
 					{
-						Main.iterateOnChildren(that,_loc6_[1],Main.checkFrameScript,false);
+						Main.iterateOnChildren(that,info[1],Main.checkFrameScript,false);
 					}
 				}
 			}
@@ -293,16 +301,15 @@ class Main
 	}
 	static function stopAll()
 	{
-		var _loc2_ = 0;
-		var _loc4_;
-		while(_loc2_ < Main.holders.length)
+		var i = 0;
+		while(i < Main.holders.length)
 		{
-			for(var _loc3_ in Main.holders[_loc2_])
+			for(var objName in Main.holders[i])
 			{
-				_loc4_ = Main.holders[_loc2_][_loc3_];
-				Main.stopAnimation(_loc4_,_loc4_.chid);
+				var obj = Main.holders[i][objName];
+				Main.stopAnimation(obj,obj.chid);
 			}
-			_loc2_ = _loc2_ + 1;
+			i++;
 		}
 		Main.stopAnimation(_root.popup_holder,_root.popup_holder.chid);
 	}
@@ -313,14 +320,14 @@ class Main
 		{
 			return undefined;
 		}
-		var _loc3_ = Main.spriteInfo["m" + chid];
-		if(!_loc3_)
+		var info = Main.spriteInfo["m" + chid];
+		if(!info)
 		{
 			return undefined;
 		}
-		if(_loc3_.length > 1)
+		if(info.length > 1)
 		{
-			Main.iterateOnChildren(obj,_loc3_[1],Main.stopAnimation,Main.stopAnimation);
+			Main.iterateOnChildren(obj,info[1],Main.stopAnimation,Main.stopAnimation);
 		}
 	}
 }

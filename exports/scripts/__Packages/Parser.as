@@ -238,6 +238,7 @@ class Parser
 		var _loc4_;
 		var _loc5_;
 		var _loc6_;
+		var _loc7_;
 		loop0:
 		while(true)
 		{
@@ -246,7 +247,8 @@ class Parser
 				case ".":
 				case ". ":
 					_loc3_ = this.consume() === ". ";
-					if(this.peek().slice(0,2) !== "$v")
+					_loc4_ = this.peek().slice(0,2);
+					if(_loc4_ !== "$v" && _loc4_ !== "$n")
 					{
 						this.wrongTokenError();
 					}
@@ -266,41 +268,41 @@ class Parser
 					break;
 				case "(":
 					this.consume();
-					_loc4_ = this.commaList();
-					_loc5_ = ["(",_loc2_,_loc4_];
+					_loc5_ = this.commaList();
+					_loc6_ = ["(",_loc2_,_loc5_];
 					if(_loc2_ instanceof Array)
 					{
 						if(_loc2_[0] === "$" && typeof _loc2_[1] === "string")
 						{
-							_loc6_ = _loc2_[1].lastIndexOf(".");
-							if(_loc6_ !== -1)
+							_loc7_ = _loc2_[1].lastIndexOf(".");
+							if(_loc7_ !== -1)
 							{
-								_loc5_ = [".(",_loc2_,_loc2_[1].slice(_loc6_ + 1),_loc4_];
-								_loc2_[1] = _loc2_[1].slice(0,_loc6_);
+								_loc6_ = [".(",_loc2_,_loc2_[1].slice(_loc7_ + 1),_loc5_];
+								_loc2_[1] = _loc2_[1].slice(0,_loc7_);
 							}
 							else
 							{
 								switch(_loc2_[1])
 								{
 									case "eval":
-										_loc5_ = ["$",_loc4_[1]];
+										_loc6_ = ["$",_loc5_[1]];
 										break;
 									case "set":
-										_loc5_ = ["$=",_loc4_[1],_loc4_[2]];
+										_loc6_ = ["$=",_loc5_[1],_loc5_[2]];
 										break;
 									case "trace":
-										_loc5_ = ["trace",_loc4_[1]];
+										_loc6_ = ["trace",_loc5_[1]];
 								}
 							}
 						}
 						else if(_loc2_[0] === ".")
 						{
 							_loc2_[0] = ".(";
-							_loc2_.push(_loc4_);
-							_loc5_ = _loc2_;
+							_loc2_.push(_loc5_);
+							_loc6_ = _loc2_;
 						}
 					}
-					_loc2_ = _loc5_;
+					_loc2_ = _loc6_;
 					this.match(")");
 					break;
 				default:

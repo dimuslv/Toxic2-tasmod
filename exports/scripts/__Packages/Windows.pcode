@@ -1,11 +1,11 @@
-ConstantPool "_global", "Windows", "prototype", "init", "clip", "window_clip", "w", "getNextHighestDepth", "inputWindow", "window", "attachMovie", "title", "Input string", "customMinimize", "minimized", "inputField", "_visible", "TAS", "updateText", "updateMainField", "_static", "createTextField", "background", "type", "input", "onKillFocus", "lastCaretPos", "loadInputs", "offsetField", "loadOffsets", "offsetBarsWindow", "Offset bars", "barsWindow", "center", "Consolas", "TextFormat", "setNewTextFormat", "autoSize", "varWindow", "Vars", "update", "updateVarWindow", "Utils", "visWindowArray", "length", "VisWindow", "imgMinimize", "img", "createEmptyMovieClip", "_y", "bmps", "flash", "display", "BitmapData", "attachBitmap", "inputDisplay", "Input display", "inputDisplayParams", "com", "nitrome", "toxic", "Global", "clearBitmap", "spacing", "size", "geom", "Rectangle", "fillRect", "DIR_PRESSED", "UP_PRESSED", "DOWN_PRESSED", "border", "bombsThrownThisFrame", "timerWindow", "00:00.000", "Timer", "updateTimerWindow", "noMinimize", "mainTextField", "_height", "nullField", "onMouseUp", "curDragging", "onEnterFrame", "_x", "_xmouse", "Math", "min", "max", "curDragOfsX", "_ymouse", "curDragOfsY", "focus", "Selection", "getFocus", "slice", "_level0.window_clip", "ind", "getBeginIndex", "nullFocus", "i", "mainIndices", "mainBehaviors", "windowFunction", "obj", "Function", "Array", "apply", "setFocus", "minimizeWindow", "closeWindow", "removeMovieClip", "startDragging", "scrollUp", "scroll", "scrollDown", "options", "createWindow", "createEmptyWindow", "", "ASSetPropFlags"
+ConstantPool "_global", "Windows", "prototype", "init", "clip", "window_clip", "w", "getNextHighestDepth", "inputWindow", "window", "attachMovie", "title", "Input string", "customMinimize", "minimized", "inputField", "_visible", "TAS", "textRefresh", "updateMainField", "_static", "createTextField", "background", "type", "input", "testField", "onKillFocus", "lastCaretPos", "loadInputs", "onSetFocus", "frozen", "offsetField", "loadOffsets", "offsetBarsWindow", "Offset bars", "barsWindow", "center", "Consolas", "TextFormat", "setNewTextFormat", "autoSize", "Watch", "minimizeWindow", "expField", "expressions", "update", "obj", "options", "length", "Code", "interpret", "CompilerError", "pos", "Selection", "setFocus", "setSelection", "push", "Error: ", "message", "Utils", "setClipboard", "\n", "isS", "\r", "\\r", "\\n", "split", "join", "watchWindow", "createWindow", "right", "text", "multiline", "_parent", "compileValue", "err", "varWindow", "Vars", "updateVarWindow", "visWindowArray", "VisWindow", "imgMinimize", "img", "createEmptyMovieClip", "_y", "bmps", "flash", "display", "BitmapData", "attachBitmap", "inputDisplay", "Input display", "inputDisplayParams", "com", "nitrome", "toxic", "Global", "clearBitmap", "spacing", "size", "geom", "Rectangle", "fillRect", "DIR_PRESSED", "UP_PRESSED", "DOWN_PRESSED", "border", "bombsThrownThisFrame", "timerWindow", "00:00.000", "Timer", "updateTimerWindow", "noMinimize", "mainTextField", "_height", "nullField", "onMouseUp", "curDragging", "onEnterFrame", "_x", "_xmouse", "Math", "min", "max", "curDragOfsX", "_ymouse", "curDragOfsY", "focus", "getFocus", "slice", "_level0.window_clip", "ind", "getBeginIndex", "nullFocus", "i", "mainIndices", "mainBehaviors", "windowFunction", "Main", "endFrame", "Function", "Array", "apply", "closeWindow", "removeMovieClip", "startDragging", "scrollUp", "scroll", "scrollDown", "createEmptyWindow", "", "ASSetPropFlags"
 Push "_global"
 GetVariable
 Push "Windows"
 GetMember
 Not
 Not
-If loc1d55
+If loc24d1
 Push "_global"
 GetVariable
 Push "Windows"
@@ -69,14 +69,13 @@ StoreRegister 0
 SetMember
 Push register0
 Not
-If loc05e2
-Push 0
+If loc06c7
 Push "TAS"
 GetVariable
-Push "updateText"
-CallMethod
-Pop
-loc05e2:Push false
+Push "textRefresh"
+Push true
+SetMember
+loc06c7:Push false
 Push 1
 Push register1
 Push "updateMainField"
@@ -133,6 +132,29 @@ GetVariable
 Push "_visible"
 Push false
 SetMember
+Push 0
+Push 0
+Push 0
+Push 0
+Push 0
+Push "w"
+GetVariable
+Push "getNextHighestDepth"
+CallMethod
+Push "testField"
+Push 6
+Push "w"
+GetVariable
+Push "createTextField"
+CallMethod
+Pop
+Push "w"
+GetVariable
+Push "testField"
+GetMember
+Push "_visible"
+Push false
+SetMember
 Push "TAS"
 GetVariable
 Push "inputField"
@@ -161,6 +183,19 @@ Push "TAS"
 GetVariable
 Push "lastCaretPos"
 Push -1
+SetMember
+}
+SetMember
+Push "w"
+GetVariable
+Push "inputField"
+GetMember
+Push "onSetFocus"
+DefineFunction2 "", 1, 2, false, false, true, false, true, false, true, false, false, 1, "oldFocus" {
+Push "TAS"
+GetVariable
+Push "frozen"
+Push true
 SetMember
 }
 SetMember
@@ -339,6 +374,407 @@ Push "_visible"
 Push false
 SetMember
 Push "w"
+Push "title"
+Push "Watch"
+Push "customMinimize"
+DefineFunction2 "", 1, 2, false, false, true, false, true, false, true, false, false, 1, "w" {
+Push register1
+Push 1
+Push "Windows"
+GetVariable
+Push "minimizeWindow"
+CallMethod
+Pop
+Push register1
+Push "expField"
+GetMember
+Push "_visible"
+Push register1
+Push "minimized"
+GetMember
+Not
+SetMember
+}
+Push "expressions"
+Push 0
+InitArray
+Push "update"
+DefineFunction2 "", 1, 3, false, false, true, false, true, false, true, false, false, 0, "w" {
+Push "w"
+GetVariable
+Push "obj"
+GetMember
+Push "options"
+Push 0
+InitArray
+SetMember
+Push 0
+StoreRegister 1
+Pop
+loc0c13:Push register1
+Push "w"
+GetVariable
+Push "obj"
+GetMember
+Push "expressions"
+GetMember
+Push "length"
+GetMember
+Less2
+Not
+If loc0e52
+Push "w"
+GetVariable
+Push "obj"
+GetMember
+Push "expressions"
+GetMember
+Push register1
+GetMember
+Push 1
+Push "Code"
+GetVariable
+Push "interpret"
+CallMethod
+StoreRegister 2
+Pop
+Push register2
+Push "CompilerError"
+GetVariable
+InstanceOf
+Not
+If loc0d20
+Push register2
+Push "pos"
+GetMember
+DefineFunction2 "", 2, 3, false, false, true, false, true, false, true, false, false, 1, "w", 2, "pos" {
+Push register1
+Push "expField"
+GetMember
+Push 1
+Push "Selection"
+GetVariable
+Push "setFocus"
+CallMethod
+Pop
+Push register2
+Push register2
+Push 2
+Push "Selection"
+GetVariable
+Push "setSelection"
+CallMethod
+Pop
+}
+Push 2
+InitArray
+Push null
+Push 2
+Push "w"
+GetVariable
+Push "obj"
+GetMember
+Push "options"
+GetMember
+Push "push"
+CallMethod
+Pop
+Push "Error: "
+Push register2
+Push "message"
+GetMember
+Add2
+StoreRegister 2
+Pop
+Jump loc0d6a
+loc0d20:Push register2
+ToString
+StoreRegister 2
+Pop
+Push register2
+Push "Utils"
+GetVariable
+Push "setClipboard"
+GetMember
+Push 2
+InitArray
+Push null
+Push 2
+Push "w"
+GetVariable
+Push "obj"
+GetMember
+Push "options"
+GetMember
+Push "push"
+CallMethod
+Pop
+loc0d6a:Push register2
+Push "\n"
+Push 2
+Push "Code"
+GetVariable
+Push "isS"
+CallMethod
+PushDuplicate
+If loc0dad
+Pop
+Push register2
+Push "\r"
+Push 2
+Push "Code"
+GetVariable
+Push "isS"
+CallMethod
+loc0dad:Not
+If loc0e09
+Push "\\r"
+Push 1
+Push "\r"
+Push 1
+Push "\\n"
+Push 1
+Push "\n"
+Push 1
+Push register2
+Push "split"
+CallMethod
+Push "join"
+CallMethod
+Push "split"
+CallMethod
+Push "join"
+CallMethod
+StoreRegister 2
+Pop
+loc0e09:Push "w"
+GetVariable
+Push "obj"
+GetMember
+Push "options"
+GetMember
+Push "w"
+GetVariable
+Push "obj"
+GetMember
+Push "options"
+GetMember
+Push "length"
+GetMember
+Push 2
+Subtract
+Push register2
+SetMember
+Push register1
+Increment
+StoreRegister 1
+Pop
+Jump loc0c13
+loc0e52:Push false
+Push 1
+Push "w"
+GetVariable
+Push "updateMainField"
+CallMethod
+Pop
+}
+Push 4
+InitObject
+Push 150
+Push 485
+Push "watchWindow"
+Push 4
+Push "Windows"
+GetVariable
+Push "createWindow"
+CallMethod
+SetVariable
+Push "w"
+GetVariable
+Push "_visible"
+Push false
+SetMember
+Push "w"
+GetVariable
+Push "_static"
+Push true
+SetMember
+Push 20
+Push 10
+Push 0
+Push -15
+Push 0
+Push "w"
+GetVariable
+Push "getNextHighestDepth"
+CallMethod
+Push "expField"
+Push 6
+Push "w"
+GetVariable
+Push "createTextField"
+CallMethod
+Pop
+Push "w"
+GetVariable
+Push "expField"
+GetMember
+Push "background"
+Push true
+SetMember
+Push "w"
+GetVariable
+Push "expField"
+GetMember
+Push "autoSize"
+Push "right"
+SetMember
+Push "w"
+GetVariable
+Push "expField"
+GetMember
+Push "type"
+Push "input"
+SetMember
+Push "w"
+GetVariable
+Push "expField"
+GetMember
+Push "text"
+Push "\r"
+SetMember
+Push "w"
+GetVariable
+Push "expField"
+GetMember
+Push "multiline"
+Push true
+SetMember
+Push "right"
+Push null
+Push null
+Push null
+Push null
+Push null
+Push null
+Push null
+Push null
+Push 9
+Push "TextFormat"
+NewObject
+Push 1
+Push "w"
+GetVariable
+Push "expField"
+GetMember
+Push "setNewTextFormat"
+CallMethod
+Pop
+Push "w"
+GetVariable
+Push "expField"
+GetMember
+Push "onKillFocus"
+DefineFunction2 "", 1, 6, false, false, true, false, true, false, false, true, false, 2, "newFocus" {
+Push "\r"
+Push 1
+Push register1
+Push "text"
+GetMember
+Push "split"
+CallMethod
+StoreRegister 3
+Pop
+Push 0
+StoreRegister 4
+Pop
+Push register1
+Push "_parent"
+GetMember
+Push "obj"
+GetMember
+Push "expressions"
+Push 0
+InitArray
+SetMember
+Push 1
+StoreRegister 5
+Pop
+loc1053:Push register5
+Push register3
+Push "length"
+GetMember
+Less2
+Not
+If loc114a
+Push register4
+Push register3
+Push register5
+Push 1
+Subtract
+GetMember
+Push "length"
+GetMember
+Push 1
+Add2
+Add2
+StoreRegister 4
+Pop
+Try "err" {
+Push register3
+Push register5
+GetMember
+Push 1
+Push "Code"
+GetVariable
+Push "compileValue"
+CallMethod
+Push 1
+Push register1
+Push "_parent"
+GetMember
+Push "obj"
+GetMember
+Push "expressions"
+GetMember
+Push "push"
+CallMethod
+Pop
+Jump loc113a
+}
+Catch {
+Push "err"
+GetVariable
+Push "pos"
+Push "err"
+GetVariable
+Push "pos"
+GetMember
+Push register4
+Add2
+SetMember
+Push "err"
+GetVariable
+Push 1
+Push register1
+Push "_parent"
+GetMember
+Push "obj"
+GetMember
+Push "expressions"
+GetMember
+Push "push"
+CallMethod
+Pop
+}
+loc113a:Push register5
+Increment
+StoreRegister 5
+Pop
+Jump loc1053
+}
+loc114a:SetMember
+Push "w"
 Push 0
 Push "Windows"
 GetVariable
@@ -386,7 +822,7 @@ SetMember
 Push 0
 StoreRegister 2
 Pop
-loc0aab:Push register2
+loc1207:Push register2
 Push "Utils"
 GetVariable
 Push "visWindowArray"
@@ -395,7 +831,7 @@ Push "length"
 GetMember
 Less2
 Not
-If loc0cb2
+If loc140e
 Push "Utils"
 GetVariable
 Push "visWindowArray"
@@ -530,8 +966,8 @@ Push 3
 Add2
 StoreRegister 2
 Pop
-Jump loc0aab
-loc0cb2:Push "w"
+Jump loc1207
+loc140e:Push "w"
 Push 0
 Push "Windows"
 GetVariable
@@ -592,11 +1028,11 @@ Pop
 Push 0
 StoreRegister 5
 Pop
-loc0d90:Push register5
+loc14ec:Push register5
 Push 4
 Less2
 Not
-If loc0ff8
+If loc1754
 Push register3
 Push "spacing"
 GetMember
@@ -623,12 +1059,12 @@ Push register5
 Push 2
 StrictEquals
 Not
-If loc0e20
+If loc157c
 Push register3
 Push "spacing"
 GetMember
-Jump loc0e40
-loc0e20:Push register3
+Jump loc159c
+loc157c:Push register3
 Push "spacing"
 GetMember
 Push 2
@@ -637,7 +1073,7 @@ Push register3
 Push "size"
 GetMember
 Add2
-loc0e40:StoreRegister 7
+loc159c:StoreRegister 7
 Pop
 Push 0
 Push register3
@@ -665,7 +1101,7 @@ Push 0
 StrictEquals
 PushDuplicate
 Not
-If loc0ec6
+If loc1622
 Pop
 Push register4
 Push "DIR_PRESSED"
@@ -673,15 +1109,15 @@ GetMember
 Push 0
 StrictEquals
 Not
-loc0ec6:PushDuplicate
-If loc0ef8
+loc1622:PushDuplicate
+If loc1654
 Pop
 Push register5
 Push 1
 StrictEquals
 PushDuplicate
 Not
-If loc0ef8
+If loc1654
 Pop
 Push register4
 Push "DIR_PRESSED"
@@ -689,36 +1125,36 @@ GetMember
 Push 1
 StrictEquals
 Not
-loc0ef8:PushDuplicate
-If loc0f21
+loc1654:PushDuplicate
+If loc167d
 Pop
 Push register5
 Push 2
 StrictEquals
 PushDuplicate
 Not
-If loc0f21
+If loc167d
 Pop
 Push register4
 Push "UP_PRESSED"
 GetMember
 Not
-loc0f21:PushDuplicate
-If loc0f4a
+loc167d:PushDuplicate
+If loc16a6
 Pop
 Push register5
 Push 3
 StrictEquals
 PushDuplicate
 Not
-If loc0f4a
+If loc16a6
 Pop
 Push register4
 Push "DOWN_PRESSED"
 GetMember
 Not
-loc0f4a:Not
-If loc0fe8
+loc16a6:Not
+If loc1744
 Push 16777215
 Push register3
 Push "size"
@@ -760,12 +1196,12 @@ Push register2
 Push "fillRect"
 CallMethod
 Pop
-loc0fe8:Push register5
+loc1744:Push register5
 Increment
 StoreRegister 5
 Pop
-Jump loc0d90
-loc0ff8:Push register3
+Jump loc14ec
+loc1754:Push register3
 Push "spacing"
 GetMember
 StoreRegister 6
@@ -822,7 +1258,7 @@ GetMember
 Push 0
 StrictEquals
 Not
-If loc1166
+If loc18c2
 Push 16777215
 Push register3
 Push "size"
@@ -862,18 +1298,18 @@ Push register2
 Push "fillRect"
 CallMethod
 Pop
-Jump loc1255
-loc1166:Push 1
+Jump loc19b1
+loc18c2:Push 1
 StoreRegister 5
 Pop
-loc1173:Push register5
+loc18cf:Push register5
 Push "TAS"
 GetVariable
 Push "bombsThrownThisFrame"
 GetMember
 Less2
 Not
-If loc1255
+If loc19b1
 Push 16777215
 Push register3
 Push "size"
@@ -930,9 +1366,9 @@ Push register5
 Increment
 StoreRegister 5
 Pop
-Jump loc1173
+Jump loc18cf
 }
-loc1255:Push 3
+loc19b1:Push 3
 InitObject
 Push 40
 Push 444
@@ -1160,7 +1596,7 @@ GetVariable
 Push "curDragging"
 GetMember
 Not
-If loc166d
+If loc1dc9
 Push "Windows"
 GetVariable
 Push "curDragging"
@@ -1211,8 +1647,8 @@ Push "curDragOfsY"
 GetMember
 Add2
 SetMember
-Jump loc1826
-loc166d:Push "focus"
+Jump loc1f82
+loc1dc9:Push "focus"
 Push 0
 Push "Selection"
 GetVariable
@@ -1230,7 +1666,7 @@ Push "_level0.window_clip"
 Equals2
 PushDuplicate
 Not
-If loc16eb
+If loc1e47
 Pop
 Push "focus"
 GetVariable
@@ -1247,8 +1683,8 @@ Push "slice"
 CallMethod
 Push "mainTextField"
 Equals2
-loc16eb:Not
-If loc1826
+loc1e47:Not
+If loc1f82
 Push "w"
 Push "Windows"
 GetVariable
@@ -1295,13 +1731,13 @@ GetMember
 Push 1
 Subtract
 DefineLocal
-loc1791:Push "i"
+loc1eed:Push "i"
 GetVariable
 Push 0
 Less2
 Not
 Not
-If loc1826
+If loc1f82
 Push "ind"
 GetVariable
 Push "w"
@@ -1314,7 +1750,7 @@ GetMember
 Less2
 Not
 Not
-If loc1814
+If loc1f70
 Push "w"
 GetVariable
 Push "mainBehaviors"
@@ -1323,7 +1759,7 @@ Push "i"
 GetVariable
 GetMember
 Not
-If loc180f
+If loc1f6b
 Push "w"
 GetVariable
 Push "w"
@@ -1339,22 +1775,22 @@ GetVariable
 Push "windowFunction"
 CallMethod
 Pop
-loc180f:Jump loc1826
-loc1814:Push "i"
+loc1f6b:Jump loc1f82
+loc1f70:Push "i"
 Push "i"
 GetVariable
 Decrement
 SetVariable
-Jump loc1791
-loc1826:Push "Windows"
+Jump loc1eed
+loc1f82:Push "Windows"
 GetVariable
 Push "clip"
 GetMember
 Enumerate2
-loc1833:StoreRegister 0
+loc1f8f:StoreRegister 0
 Push null
 Equals2
-If loc1900
+If loc205c
 Push "i"
 Push register0
 SetVariable
@@ -1371,7 +1807,7 @@ Push "update"
 GetMember
 PushDuplicate
 Not
-If loc188c
+If loc1fe8
 Pop
 Push "Windows"
 GetVariable
@@ -1382,9 +1818,9 @@ GetVariable
 GetMember
 Push "_visible"
 GetMember
-loc188c:PushDuplicate
+loc1fe8:PushDuplicate
 Not
-If loc18ae
+If loc200a
 Pop
 Push "Windows"
 GetVariable
@@ -1396,8 +1832,8 @@ GetMember
 Push "minimized"
 GetMember
 Not
-loc18ae:Not
-If loc18fb
+loc200a:Not
+If loc2057
 Push "Windows"
 GetVariable
 Push "clip"
@@ -1422,9 +1858,15 @@ GetVariable
 Push "windowFunction"
 CallMethod
 Pop
-loc18fb:Jump loc1833
+loc2057:Jump loc1f8f
+loc205c:Push 0
+Push "Main"
+GetVariable
+Push "endFrame"
+CallMethod
+Pop
 }
-loc1900:SetMember
+SetMember
 Push register1
 Push "windowFunction"
 DefineFunction2 "", 2, 4, false, false, true, false, true, false, true, false, false, 1, "fun", 2, "w" {
@@ -1433,20 +1875,20 @@ Push "Function"
 GetVariable
 InstanceOf
 Not
-If loc194d
+If loc20be
 Push register2
 Push 1
 Push register1
 Push undefined
 CallMethod
 Pop
-Jump loc19b5
-loc194d:Push register1
+Jump loc2126
+loc20be:Push register1
 Push "Array"
 GetVariable
 InstanceOf
 Not
-If loc19b5
+If loc2126
 Push register1
 Push 0
 GetMember
@@ -1468,7 +1910,7 @@ Push 0
 Push register3
 SetMember
 }
-loc19b5:SetMember
+loc2126:SetMember
 Push register1
 Push "nullFocus"
 DefineFunction2 "", 0, 2, false, true, true, false, true, false, true, false, false {
@@ -1508,19 +1950,19 @@ Push register1
 Push "_static"
 GetMember
 Not
-If loc1a73
+If loc21e4
 Push register1
 Push "_visible"
 Push false
 SetMember
-Jump loc1a87
-loc1a73:Push 0
+Jump loc21f8
+loc21e4:Push 0
 Push register1
 Push "removeMovieClip"
 CallMethod
 Pop
 }
-loc1a87:SetMember
+loc21f8:SetMember
 Push register1
 Push "startDragging"
 DefineFunction2 "", 1, 2, false, false, true, false, true, false, true, false, false, 1, "w" {
@@ -1619,7 +2061,7 @@ Pop
 SetMember
 Push register1
 Push "createWindow"
-DefineFunction2 "", 3, 5, false, false, true, false, true, false, true, false, false, 1, "x", 2, "y", 3, "obj" {
+DefineFunction2 "", 4, 6, false, false, true, false, true, false, true, false, false, 1, "name", 2, "x", 3, "y", 4, "obj" {
 Push 0
 Push "Windows"
 GetVariable
@@ -1627,15 +2069,7 @@ Push "clip"
 GetMember
 Push "getNextHighestDepth"
 CallMethod
-Push "window"
-Push 0
-Push "Windows"
-GetVariable
-Push "clip"
-GetMember
-Push "getNextHighestDepth"
-CallMethod
-Add2
+Push register1
 Push "window"
 Push 3
 Push "Windows"
@@ -1644,17 +2078,17 @@ Push "clip"
 GetMember
 Push "attachMovie"
 CallMethod
-StoreRegister 4
+StoreRegister 5
 Pop
+Push register4
 Push register3
 Push register2
-Push register1
 Push 3
-Push register4
+Push register5
 Push "init"
 CallMethod
 Pop
-Push register4
+Push register5
 Return
 }
 SetMember
@@ -1667,7 +2101,16 @@ Push 1
 InitObject
 Push register2
 Push register1
-Push 3
+Push "window"
+Push 0
+Push "Windows"
+GetVariable
+Push "clip"
+GetMember
+Push "getNextHighestDepth"
+CallMethod
+Add2
+Push 4
 Push "Windows"
 GetVariable
 Push "createWindow"
@@ -1698,4 +2141,4 @@ GetMember
 Push 3
 Push "ASSetPropFlags"
 CallFunction
-loc1d55:Pop
+loc24d1:Pop

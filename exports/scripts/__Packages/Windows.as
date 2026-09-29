@@ -1,5 +1,7 @@
 class Windows
 {
+	var _parent;
+	var text;
 	static var clip;
 	static var curDragging = null;
 	static var curDragOfsX = 0;
@@ -16,7 +18,7 @@ class Windows
 			w.minimized = !w.minimized;
 			if(w.inputField._visible = !w.minimized)
 			{
-				TAS.updateText();
+				TAS.textRefresh = true;
 			}
 			w.updateMainField(false);
 		}});
@@ -25,11 +27,17 @@ class Windows
 		w.inputField.background = true;
 		w.inputField.type = "input";
 		w._visible = false;
+		w.createTextField("testField",w.getNextHighestDepth(),0,0,0,0);
+		w.testField._visible = false;
 		TAS.inputField = w.inputField;
 		w.inputField.onKillFocus = function(newFocus)
 		{
 			TAS.loadInputs(TAS.lastCaretPos);
 			TAS.lastCaretPos = -1;
+		};
+		w.inputField.onSetFocus = function(oldFocus)
+		{
+			TAS.frozen = true;
 		};
 		w.createTextField("offsetField",w.getNextHighestDepth(),0,40,530,20);
 		w.offsetField.background = true;
@@ -53,6 +61,71 @@ class Windows
 		w.barsWindow.setNewTextFormat(new TextFormat("Consolas",14,null,null,null,null,null,null,"center"));
 		w.barsWindow.autoSize = true;
 		w._visible = false;
+		w = Windows.createWindow("watchWindow",485,150,{title:"Watch",customMinimize:function(w)
+		{
+			Windows.minimizeWindow(w);
+			w.expField._visible = !w.minimized;
+		},expressions:[],update:function(w)
+		{
+			w.obj.options = [];
+			var _loc1_ = 0;
+			var _loc2_;
+			while(_loc1_ < w.obj.expressions.length)
+			{
+				_loc2_ = Code.interpret(w.obj.expressions[_loc1_]);
+				if(_loc2_ instanceof CompilerError)
+				{
+					w.obj.options.push(null,[function(w, pos)
+					{
+						Selection.setFocus(w.expField);
+						Selection.setSelection(pos,pos);
+					},_loc2_.pos]);
+					_loc2_ = "Error: " + _loc2_.message;
+				}
+				else
+				{
+					_loc2_ = String(_loc2_);
+					w.obj.options.push(null,[Utils.setClipboard,_loc2_]);
+				}
+				if(Code.isS("\n",_loc2_) || Code.isS("\r",_loc2_))
+				{
+					_loc2_ = _loc2_.split("\n").join("\\n").split("\r").join("\\r");
+				}
+				w.obj.options[w.obj.options.length - 2] = _loc2_;
+				_loc1_ = _loc1_ + 1;
+			}
+			w.updateMainField(false);
+		}});
+		w._visible = false;
+		w._static = true;
+		w.createTextField("expField",w.getNextHighestDepth(),-15,0,10,20);
+		w.expField.background = true;
+		w.expField.autoSize = "right";
+		w.expField.type = "input";
+		w.expField.text = "\r";
+		w.expField.multiline = true;
+		w.expField.setNewTextFormat(new TextFormat(null,null,null,null,null,null,null,null,"right"));
+		w.expField.onKillFocus = function(newFocus)
+		{
+			var _loc3_ = this.text.split("\r");
+			var _loc4_ = 0;
+			this._parent.obj.expressions = [];
+			var _loc5_ = 1;
+			while(_loc5_ < _loc3_.length)
+			{
+				_loc4_ += _loc3_[_loc5_ - 1].length + 1;
+				try
+				{
+					this._parent.obj.expressions.push(Code.compileValue(_loc3_[_loc5_]));
+				}
+				catch(err)
+				{
+					err.pos += _loc4_;
+					this._parent.obj.expressions.push(err);
+				}
+				_loc5_ = _loc5_ + 1;
+			}
+		};
 		w = Windows.clip.attachMovie("window","varWindow",Windows.clip.getNextHighestDepth());
 		w.init(10,40,{title:"Vars",update:TAS.updateVarWindow});
 		w._static = true;
@@ -168,6 +241,7 @@ class Windows
 				Windows.windowFunction(Windows.clip[i].obj.update,Windows.clip[i]);
 			}
 		}
+		Main.endFrame();
 	}
 	static function windowFunction(fun, w)
 	{
@@ -221,14 +295,14 @@ class Windows
 		w.scroll = Math.min(w.obj.options.length / 2 - 19,w.scroll + 10);
 		w.updateMainField(false);
 	}
-	static function createWindow(x, y, obj)
+	static function createWindow(name, x, y, obj)
 	{
-		var _loc4_ = Windows.clip.attachMovie("window","window" + Windows.clip.getNextHighestDepth(),Windows.clip.getNextHighestDepth());
-		_loc4_.init(x,y,obj);
-		return _loc4_;
+		var _loc5_ = Windows.clip.attachMovie("window",name,Windows.clip.getNextHighestDepth());
+		_loc5_.init(x,y,obj);
+		return _loc5_;
 	}
 	static function createEmptyWindow(x, y)
 	{
-		return Windows.createWindow(x,y,{title:""});
+		return Windows.createWindow("window" + Windows.clip.getNextHighestDepth(),x,y,{title:""});
 	}
 }

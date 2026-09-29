@@ -12,13 +12,14 @@
     <use ffdec:characterId="1526" height="0.0" id="laser_holder" transform="matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)" width="0.0" xlink:href="#sprite8"/>
     <use ffdec:characterId="1527" height="0.0" id="debris_holder" transform="matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)" width="0.0" xlink:href="#sprite9"/>
     <use ffdec:characterId="1528" height="0.0" id="player_holder" transform="matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)" width="0.0" xlink:href="#sprite10"/>
-    <use ffdec:characterId="1529" height="0.0" id="grow_holder" transform="matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)" width="0.0" xlink:href="#sprite11"/>
-    <use ffdec:characterId="1530" height="0.0" id="bomb_holder" transform="matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)" width="0.0" xlink:href="#sprite12"/>
-    <use ffdec:characterId="1531" height="0.0" id="missile_holder" transform="matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)" width="0.0" xlink:href="#sprite13"/>
-    <use ffdec:characterId="1532" height="0.0" id="splash_holder" transform="matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)" width="0.0" xlink:href="#sprite14"/>
-    <use ffdec:characterId="1533" height="0.0" id="acid_holder" transform="matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)" width="0.0" xlink:href="#sprite15"/>
-    <use ffdec:characterId="1534" height="0.0" id="explosion_holder" transform="matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)" width="0.0" xlink:href="#sprite16"/>
-    <use ffdec:characterId="1534" height="0.0" id="test_holder" transform="matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)" width="0.0" xlink:href="#sprite16"/>
+    <use ffdec:characterId="1534" height="0.0" id="ghost_holder" transform="matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)" width="0.0" xlink:href="#sprite11"/>
+    <use ffdec:characterId="1529" height="0.0" id="grow_holder" transform="matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)" width="0.0" xlink:href="#sprite12"/>
+    <use ffdec:characterId="1530" height="0.0" id="bomb_holder" transform="matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)" width="0.0" xlink:href="#sprite13"/>
+    <use ffdec:characterId="1531" height="0.0" id="missile_holder" transform="matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)" width="0.0" xlink:href="#sprite14"/>
+    <use ffdec:characterId="1532" height="0.0" id="splash_holder" transform="matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)" width="0.0" xlink:href="#sprite15"/>
+    <use ffdec:characterId="1533" height="0.0" id="acid_holder" transform="matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)" width="0.0" xlink:href="#sprite16"/>
+    <use ffdec:characterId="1534" height="0.0" id="explosion_holder" transform="matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)" width="0.0" xlink:href="#sprite11"/>
+    <use ffdec:characterId="1534" height="0.0" id="test_holder" transform="matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)" width="0.0" xlink:href="#sprite11"/>
   </g>
   <defs/>
 </svg>

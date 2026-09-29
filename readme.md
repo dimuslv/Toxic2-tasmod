@@ -4,7 +4,7 @@ This is a TAS/practice mod for the 2008 Nitrome Flash game Toxic 2.
 
 If you just play the game normally it should act more or less like the base game, except that various transitions are shortened. Additionally, the `R` button restarts the level and `H` forces a hit.
 
-By default you don't have infinite lives, which could be useful for practicing stuff like death-cancelling, but could also be annoying, especially if you want to use the `H` key to move up vertically. To change that, you can press `M` to bring up the "Main menu", click "Testing vars" and then turn on the "No death" option ("Invulnerability" makes you ignore damage entirely). You can also toggle off "Skip beginning" here, which makes the full starting animation play and could be useful for practicing strats where reacting to stuff at the beginning is important.
+By default you don't have infinite lives, which could be useful for practicing stuff like death-cancelling, but could also be annoying, especially if you want to use the `H` key to move up vertically. To change that, you can press `M` to bring up the "Main menu", click "Testing vars" and then turn on the "No death" option ("Invulnerability" makes you ignore damage entirely).
 
 In general, you can drag all windows around by clicking and dragging on their title bars, minimize and close them by clicking the respective icons and click on options to select/toggle them. You can look around the various options I added, hopefully it should be clear enough what they do, and also suggest new ones if you want any. Besides the main menu, you can also toggle the visibility of the input string by pressing `I`, variable window by pressing `V` and timer by pressing `T`.
 

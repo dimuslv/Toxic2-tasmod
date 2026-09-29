@@ -1,11 +1,11 @@
-ConstantPool "_global", "Parser", "arr", "ind", "prototype", "isAssignmentToken", "=", ">=", "<=", "$!=", "charAt", "Code", "isS", "length", "getToSetToken", "$", "$=", ".", "pos", "Unexpected literal before assignment", "CompilerError", "Unexpected operation \'", "\' before assignment", "isOp", "string", "wrongTokenError", "Unexpected token: ", "peek", "match", "consume", "program", "statementStack", "$end", ";", "statement", "push", "expression", "commaList", ")", "]", ",", "assignment", "conditional", "slice", "leftAssocOp", "rightAssocOp", "logOr", "?", ":", "logAnd", "||", "bitOr", "&&", "bitXor", "|", "bitAnd", "^", "equality", "&", "relational", "!==", "===", "!=", "==", "bitShift", ">", "<", "sum", ">>>", ">>", "<<", "product", "+-", "unary", "*/%", "+", "-", "!", "~", "++", "--", "property", "singleton", ". ", "[", "(", "$v", "Array", "lastIndexOf", ".(", "eval", "set", "trace", "$n", "$s", "constObj", "hasOwnProperty", "playerVars", "_root.game.player.", "globalShortcuts", "true", "false", "undefined", "null", "p", "_root.game.player", "g", "_root.game", "G", "com.nitrome.toxic.Global", "ASSetPropFlags"
+ConstantPool "_global", "Parser", "arr", "ind", "prototype", "isAssignmentToken", "=", ">=", "<=", "$!=", "charAt", "Code", "isS", "length", "getToSetToken", "$", "$=", ".", "pos", "Unexpected literal before assignment", "CompilerError", "Unexpected operation \'", "\' before assignment", "isOp", "string", "wrongTokenError", "Unexpected token: ", "peek", "match", "consume", "program", "statementStack", "$end", ";", "statement", "push", "expression", "commaList", ")", "]", ",", "assignment", "conditional", "slice", "leftAssocOp", "rightAssocOp", "logOr", "?", ":", "logAnd", "||", "bitOr", "&&", "bitXor", "|", "bitAnd", "^", "equality", "&", "relational", "!==", "===", "!=", "==", "bitShift", ">", "<", "sum", ">>>", ">>", "<<", "product", "+-", "unary", "*/%", "+", "-", "!", "~", "++", "--", "property", "singleton", ". ", "[", "(", "$v", "$n", "Array", "lastIndexOf", ".(", "eval", "set", "trace", "$s", "constObj", "hasOwnProperty", "playerVars", "_root.game.player.", "globalShortcuts", "true", "false", "undefined", "null", "p", "_root.game.player", "g", "_root.game", "G", "com.nitrome.toxic.Global", "ASSetPropFlags"
 Push "_global"
 GetVariable
 Push "Parser"
 GetMember
 Not
 Not
-If loc19e1
+If loc19ff
 Push "_global"
 GetVariable
 Push "Parser"
@@ -907,7 +907,7 @@ Return
 SetMember
 Push register2
 Push "property"
-DefineFunction2 "", 0, 8, false, false, true, false, true, false, false, true, false {
+DefineFunction2 "", 0, 9, false, false, true, false, true, false, false, true, false {
 Push 0
 Push register1
 Push "singleton"
@@ -916,7 +916,7 @@ StoreRegister 2
 Pop
 loc11cd:Push true
 Not
-If loc1680
+If loc169e
 Push 0
 Push register1
 Push "peek"
@@ -932,12 +932,12 @@ If loc122f
 Push register0
 Push "["
 StrictEquals
-If loc138f
+If loc13ad
 Push register0
 Push "("
 StrictEquals
-If loc13ec
-Jump loc167b
+If loc140a
+Jump loc1699
 loc122f:Push 0
 Push register1
 Push "consume"
@@ -955,38 +955,49 @@ Push "peek"
 CallMethod
 Push "slice"
 CallMethod
+StoreRegister 4
+Pop
+Push register4
 Push "$v"
 StrictEquals
 Not
+PushDuplicate
 Not
-If loc129f
+If loc12a3
+Pop
+Push register4
+Push "$n"
+StrictEquals
+Not
+loc12a3:Not
+If loc12bd
 Push 0
 Push register1
 Push "wrongTokenError"
 CallMethod
 Pop
-loc129f:Push register3
+loc12bd:Push register3
 Not
 PushDuplicate
 Not
-If loc12b9
+If loc12d7
 Pop
 Push register2
 Push "Array"
 GetVariable
 InstanceOf
-loc12b9:PushDuplicate
+loc12d7:PushDuplicate
 Not
-If loc12d5
+If loc12f3
 Pop
 Push register2
 Push 0
 GetMember
 Push "$"
 StrictEquals
-loc12d5:PushDuplicate
+loc12f3:PushDuplicate
 Not
-If loc12f2
+If loc1310
 Pop
 Push register2
 Push 1
@@ -994,8 +1005,8 @@ GetMember
 TypeOf
 Push "string"
 StrictEquals
-loc12f2:Not
-If loc1349
+loc1310:Not
+If loc1367
 Push register2
 Push 1
 Push register2
@@ -1013,8 +1024,8 @@ CallMethod
 Add2
 Add2
 SetMember
-Jump loc138a
-loc1349:Push 2
+Jump loc13a8
+loc1367:Push 2
 Push 1
 Push 0
 Push register1
@@ -1028,8 +1039,8 @@ Push 3
 InitArray
 StoreRegister 2
 Pop
-loc138a:Jump loc11cd
-loc138f:Push 0
+loc13a8:Jump loc11cd
+loc13ad:Push 0
 Push register1
 Push "consume"
 CallMethod
@@ -1051,7 +1062,7 @@ Push "match"
 CallMethod
 Pop
 Jump loc11cd
-loc13ec:Push 0
+loc140a:Push 0
 Push register1
 Push "consume"
 CallMethod
@@ -1060,21 +1071,21 @@ Push 0
 Push register1
 Push "commaList"
 CallMethod
-StoreRegister 4
+StoreRegister 5
 Pop
-Push register4
+Push register5
 Push register2
 Push "("
 Push 3
 InitArray
-StoreRegister 5
+StoreRegister 6
 Pop
 Push register2
 Push "Array"
 GetVariable
 InstanceOf
 Not
-If loc1653
+If loc1671
 Push register2
 Push 0
 GetMember
@@ -1082,7 +1093,7 @@ Push "$"
 StrictEquals
 PushDuplicate
 Not
-If loc1478
+If loc1496
 Pop
 Push register2
 Push 1
@@ -1090,8 +1101,8 @@ GetMember
 TypeOf
 Push "string"
 StrictEquals
-loc1478:Not
-If loc1603
+loc1496:Not
+If loc1621
 Push "."
 Push 1
 Push register2
@@ -1099,16 +1110,16 @@ Push 1
 GetMember
 Push "lastIndexOf"
 CallMethod
-StoreRegister 6
+StoreRegister 7
 Pop
-Push register6
+Push register7
 Push -1
 StrictEquals
 Not
 Not
-If loc153c
-Push register4
-Push register6
+If loc155a
+Push register5
+Push register7
 Push 1
 Add2
 Push 1
@@ -1121,11 +1132,11 @@ Push register2
 Push ".("
 Push 4
 InitArray
-StoreRegister 5
+StoreRegister 6
 Pop
 Push register2
 Push 1
-Push register6
+Push register7
 Push 0
 Push 2
 Push register2
@@ -1134,75 +1145,75 @@ GetMember
 Push "slice"
 CallMethod
 SetMember
-Jump loc15fe
-loc153c:Push register2
+Jump loc161c
+loc155a:Push register2
 Push 1
 GetMember
-StoreRegister 7
+StoreRegister 8
 Push "eval"
 StrictEquals
-If loc157e
-Push register7
+If loc159c
+Push register8
 Push "set"
 StrictEquals
-If loc15a4
-Push register7
+If loc15c2
+Push register8
 Push "trace"
 StrictEquals
-If loc15d8
-Jump loc15fe
-loc157e:Push register4
+If loc15f6
+Jump loc161c
+loc159c:Push register5
 Push 1
 GetMember
 Push "$"
 Push 2
 InitArray
-StoreRegister 5
+StoreRegister 6
 Pop
-Jump loc15fe
-loc15a4:Push register4
+Jump loc161c
+loc15c2:Push register5
 Push 2
 GetMember
-Push register4
+Push register5
 Push 1
 GetMember
 Push "$="
 Push 3
 InitArray
-StoreRegister 5
+StoreRegister 6
 Pop
-Jump loc15fe
-loc15d8:Push register4
+Jump loc161c
+loc15f6:Push register5
 Push 1
 GetMember
 Push "trace"
 Push 2
 InitArray
-StoreRegister 5
+StoreRegister 6
 Pop
-Jump loc15fe
-loc15fe:Jump loc1653
-loc1603:Push register2
+Jump loc161c
+loc161c:Jump loc1671
+loc1621:Push register2
 Push 0
 GetMember
 Push "."
 StrictEquals
 Not
-If loc1653
+If loc1671
 Push register2
 Push 0
 Push ".("
 SetMember
-Push register4
+Push register5
 Push 1
 Push register2
 Push "push"
 CallMethod
 Pop
 Push register2
-StoreRegister 5
+StoreRegister 6
 Pop
-loc1653:Push register5
+loc1671:Push register6
 StoreRegister 2
 Pop
 Push ")"
@@ -1212,8 +1223,8 @@ Push "match"
 CallMethod
 Pop
 Jump loc11cd
-loc167b:Jump loc1680
-loc1680:Push register2
+loc1699:Jump loc169e
+loc169e:Push register2
 Return
 }
 SetMember
@@ -1230,7 +1241,7 @@ CallMethod
 Push "("
 StrictEquals
 Not
-If loc170e
+If loc172c
 Push 0
 Push register1
 Push "consume"
@@ -1248,15 +1259,15 @@ Push register1
 Push "match"
 CallMethod
 Pop
-Jump loc1942
-loc170e:Push 0
+Jump loc1960
+loc172c:Push 0
 Push register1
 Push "peek"
 CallMethod
 Push "["
 StrictEquals
 Not
-If loc1777
+If loc1795
 Push 0
 Push register1
 Push "consume"
@@ -1274,8 +1285,8 @@ Push register1
 Push "match"
 CallMethod
 Pop
-Jump loc1942
-loc1777:Push 2
+Jump loc1960
+loc1795:Push 2
 Push 0
 Push 2
 Push 0
@@ -1287,17 +1298,17 @@ CallMethod
 StoreRegister 0
 Push "$n"
 StrictEquals
-If loc17dc
+If loc17fa
 Push register0
 Push "$s"
 StrictEquals
-If loc1807
+If loc1825
 Push register0
 Push "$v"
 StrictEquals
-If loc1831
-Jump loc192e
-loc17dc:Push 2
+If loc184f
+Jump loc194c
+loc17fa:Push 2
 Push 1
 Push 0
 Push register1
@@ -1307,7 +1318,7 @@ Push "slice"
 CallMethod
 ToNumber
 Return
-loc1807:Push 2
+loc1825:Push 2
 Push 1
 Push 0
 Push register1
@@ -1316,7 +1327,7 @@ CallMethod
 Push "slice"
 CallMethod
 Return
-loc1831:Push 2
+loc184f:Push 2
 Push 1
 Push 0
 Push register1
@@ -1335,7 +1346,7 @@ GetMember
 Push "hasOwnProperty"
 CallMethod
 Not
-If loc1897
+If loc18b5
 Push "Parser"
 GetVariable
 Push "constObj"
@@ -1343,7 +1354,7 @@ GetMember
 Push register3
 GetMember
 Return
-loc1897:Push register3
+loc18b5:Push register3
 Push 1
 Push "Code"
 GetVariable
@@ -1352,7 +1363,7 @@ GetMember
 Push "hasOwnProperty"
 CallMethod
 Not
-If loc18de
+If loc18fc
 Push "_root.game.player."
 Push "Code"
 GetVariable
@@ -1363,8 +1374,8 @@ GetMember
 Add2
 StoreRegister 3
 Pop
-Jump loc191a
-loc18de:Push register3
+Jump loc1938
+loc18fc:Push register3
 Push 1
 Push "Parser"
 GetVariable
@@ -1373,7 +1384,7 @@ GetMember
 Push "hasOwnProperty"
 CallMethod
 Not
-If loc191a
+If loc1938
 Push "Parser"
 GetVariable
 Push "globalShortcuts"
@@ -1382,17 +1393,17 @@ Push register3
 GetMember
 StoreRegister 3
 Pop
-loc191a:Push register3
+loc1938:Push register3
 Push "$"
 Push 2
 InitArray
 Return
-loc192e:Push 0
+loc194c:Push 0
 Push register1
 Push "wrongTokenError"
 CallMethod
 Pop
-loc1942:Push register2
+loc1960:Push register2
 Return
 }
 SetMember
@@ -1431,4 +1442,4 @@ GetMember
 Push 3
 Push "ASSetPropFlags"
 CallFunction
-loc19e1:Pop
+loc19ff:Pop

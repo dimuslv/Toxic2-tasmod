@@ -3,7 +3,7 @@ class Code
 	var endInd;
 	var ind;
 	var str;
-	static var playerVars = {x:"_x",y:"_y",vx:"vx",vy:"vy",wc:"wall_count",fc:"fall_count",st:"state"};
+	static var playerVars = {x:"_x",y:"_y",vx:"vx",vy:"vy",wc:"wall_count",fc:"fall_count",hc:"hit_count",st:"state"};
 	function Code()
 	{
 	}
@@ -45,6 +45,17 @@ class Code
 			return str1.length;
 		}
 		return ind;
+	}
+	static function execute(fun)
+	{
+		if(fun instanceof Function)
+		{
+			fun();
+		}
+		else if(fun instanceof Array)
+		{
+			fun[0].apply(null,fun.slice(1));
+		}
 	}
 	static function parseAngled(str, ind)
 	{
@@ -161,6 +172,10 @@ class Code
 		var _loc4_ = new Parser(new Code().lex(str,startInd,endInd)).program();
 		trace(_loc4_);
 		return _loc4_;
+	}
+	static function compileValue(str, startInd, endInd)
+	{
+		return new Parser(new Code().lex(str,startInd,endInd)).expression();
 	}
 	function peek()
 	{

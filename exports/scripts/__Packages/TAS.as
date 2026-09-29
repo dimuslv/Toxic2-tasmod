@@ -7,28 +7,31 @@ class TAS
 	static var pressedHit;
 	static var pressedPause;
 	static var releasedUp;
-	static var targetFrame;
-	static var targetIndex;
-	static var totalFrame;
+	static var specialModeData;
 	static var write = true;
 	static var override = true;
 	static var frozen = false;
-	static var curString = "";
+	static var curString = "60";
 	static var curIndex = 0;
 	static var curFrame = 0;
+	static var totalFrame = 0;
+	static var totalLength = 0;
 	static var inputArray = ["i"];
 	static var valueArray = [0];
 	static var indArray = [-1];
-	static var endIndArray = [0];
+	static var endIndArray = [2];
 	static var codeObj = {};
+	static var ghostData = [];
+	static var beginningFrames = 60;
 	static var fastPlayback = false;
-	static var neutralPlayback = false;
 	static var saveStates = [];
-	static var saveStateCodeObj = [];
+	static var ghostVisible = [];
 	static var queuedHit = false;
 	static var bombsThrownThisFrame = 0;
+	static var targetFrame = - Infinity;
 	static var delayedCaretPos = -1;
 	static var lastCaretPos = -1;
+	static var delayedFun = null;
 	static var offsetString = "";
 	static var curPattern = 0;
 	static var curPatternInd = 0;
@@ -40,15 +43,16 @@ class TAS
 	static var offsetCodeObj = {};
 	static var inputFieldError = null;
 	static var offsetFieldError = null;
+	static var specialMode = 0;
 	static var UP_PRESSED = false;
 	static var DOWN_PRESSED = false;
-	static var runBack = false;
 	static var subLetters = "rbjJPh";
 	static var fullLetters = "qweasdQWEADnp";
 	static var letters = TAS.subLetters + TAS.fullLetters;
-	static var symbols = TAS.letters + "|<>,.{";
+	static var symbols = TAS.letters + "|<>,.{/";
 	static var keysDown = {};
 	static var importantKeycodes = TAS.getImportantKeycodes();
+	static var textRefresh = false;
 	function TAS()
 	{
 	}
@@ -64,13 +68,13 @@ class TAS
 	}
 	static function updateVarWindow(w)
 	{
-		var _loc3_ = _root.game.player;
-		w.obj.options = ["x: " + _loc3_._x,false,"y: " + _loc3_._y,false,"vx: " + _loc3_.vx,false,"vy: " + _loc3_.vy,false,"wc: " + _loc3_.wall_count,false,"hc: " + _loc3_.hit_count,false,"st: " + ["start","stand","duck","walk","jump","fall","wall","hit","die","end"][_loc3_.state],false,"dir: " + ["l","r"][_loc3_.dir],false];
+		var p = _root.game.player;
+		w.obj.options = ["x: " + p._x,false,"y: " + p._y,false,"vx: " + p.vx,false,"vy: " + p.vy,false,"wc: " + p.wall_count,false,"hc: " + p.hit_count,false,"st: " + ["start","stand","duck","walk","jump","fall","wall","hit","die","end"][p.state],false,"dir: " + ["l","r"][p.dir],false];
 		w.updateMainField(false);
 	}
 	static function isAtStringEnd()
 	{
-		return TAS.curIndex >= TAS.inputArray.length - 1 && TAS.curFrame >= TAS.valueArray[TAS.curIndex];
+		return TAS.totalFrame >= TAS.totalLength;
 	}
 	static function isS(sym, str)
 	{
@@ -102,11 +106,11 @@ class TAS
 	}
 	static function clearOffsets(arr)
 	{
-		var _loc2_ = 3;
-		while(_loc2_ < arr.length)
+		var i = 3;
+		while(i < arr.length)
 		{
-			arr[_loc2_] = 0;
-			_loc2_ += 4;
+			arr[i] = 0;
+			i += 4;
 		}
 	}
 	static function scrollToCaret()
@@ -181,7 +185,7 @@ class TAS
 			}
 			if(TAS.importantKeycodes[code])
 			{
-				if(!TAS.keysDown[code] && TAS.write)
+				if(!TAS.keysDown[code])
 				{
 					TAS.hitOffset(code);
 				}
@@ -206,10 +210,7 @@ class TAS
 		}
 		if(TAS.importantKeycodes[code])
 		{
-			if(TAS.write)
-			{
-				TAS.hitOffset(- code);
-			}
+			TAS.hitOffset(- code);
 			TAS.keysDown[code] = false;
 		}
 	}
@@ -244,7 +245,7 @@ class TAS
 			}
 			return true;
 		}
-		var _loc3_;
+		var i;
 		if(code == 113)
 		{
 			_root.popup_holder.clip.key_button.clearKeyListener();
@@ -266,13 +267,13 @@ class TAS
 		{
 			if(Windows.clip.inputWindow._visible = !Windows.clip.inputWindow._visible)
 			{
-				TAS.updateText();
+				TAS.textRefresh = true;
 			}
 		}
 		else if(code === 79)
 		{
 			Windows.clip.inputWindow._visible = true;
-			TAS.updateText();
+			TAS.textRefresh = true;
 			TAS.offsetField._visible = !TAS.offsetField._visible;
 			if(TAS.offsetField._visible)
 			{
@@ -296,28 +297,24 @@ class TAS
 				TAS.frozen = true;
 			}
 			TAS.write = code == 190;
-			_loc3_ = code == 75 ? 30 : 1;
+			i = code == 75 ? 30 : 1;
 			if(TAS.write)
 			{
 				TAS.override = !Key.isDown(16);
 			}
 			else if(Key.isDown(16))
 			{
-				_loc3_ *= 5;
+				i *= 5;
 			}
-			TAS.fastPlayback = true;
-			while(_loc3_ > 0 && (TAS.write || !TAS.isAtStringEnd()))
+			if(TAS.write)
 			{
-				if(_loc3_ == 1)
-				{
-					TAS.fastPlayback = false;
-				}
 				Main.gameUpdate();
-				_loc3_ = _loc3_ - 1;
+				Main.stopAll();
 			}
-			TAS.fastPlayback = false;
-			TAS.updateText();
-			Main.stopAll();
+			else
+			{
+				TAS.skipToFrame(Math.min(TAS.totalFrame + i,TAS.totalLength));
+			}
 		}
 		else if(code == 188 || code == 76 || code == 74)
 		{
@@ -326,33 +323,23 @@ class TAS
 				TAS.frozen = true;
 			}
 			TAS.write = code == 188;
-			_loc3_ = code == 74 ? 30 : 1;
+			i = code == 74 ? 30 : 1;
 			if(Key.isDown(16))
 			{
-				_loc3_ *= 5;
+				i *= 5;
 			}
-			if(TAS.curIndex > 0)
+			if(TAS.totalFrame > - TAS.beginningFrames)
 			{
-				while(_loc3_ > 0 && TAS.curIndex > 0)
+				if(TAS.write)
 				{
-					TAS.curFrame--;
-					if(TAS.curFrame <= 0)
+					TAS.delayedFun = function()
 					{
-						do
-						{
-							TAS.curIndex--;
-						}
-						while(TAS.isSubLetter(TAS.inputArray[TAS.curIndex]));
-						TAS.curFrame = TAS.valueArray[TAS.curIndex];
-					}
-					_loc3_ = _loc3_ - 1;
+						TAS.truncateCurArray();
+						TAS.textRefresh = true;
+					};
 				}
-				TAS.runBack = true;
+				TAS.targetFrame = Math.max(- TAS.beginningFrames,TAS.totalFrame - i);
 				_root.tt.doTween("reload");
-			}
-			if(TAS.write)
-			{
-				TAS.truncateCurArray();
 			}
 		}
 		else if(code == 220)
@@ -369,7 +356,7 @@ class TAS
 			{
 				TAS.truncateCurArray();
 			}
-			TAS.updateText();
+			TAS.textRefresh = true;
 		}
 		else if(code == 82)
 		{
@@ -381,38 +368,54 @@ class TAS
 			{
 				return false;
 			}
+			var state = TAS.saveStates[code - 48];
 			if(Key.isDown(16))
 			{
-				TAS.updateText(true);
-				TAS.saveStates[code - 48] = TAS.inputField.text;
-				TAS.saveStateCodeObj[code - 48] = TAS.codeObj;
+				if(Key.isDown(17) && state)
+				{
+					var ghostName = "g" + (code - 48);
+					if(_root.game.ghost_holder[ghostName])
+					{
+						_root.game.ghost_holder[ghostName].removeMovieClip();
+						TAS.ghostVisible[code - 48] = false;
+					}
+					else
+					{
+						TAS.addGhost(code - 48);
+						TAS.ghostVisible[code - 48] = true;
+					}
+				}
+				else
+				{
+					TAS.updateText(true);
+					TAS.saveStates[code - 48] = {inputText:TAS.inputField.text,codeObj:TAS.codeObj,ghostData:TAS.ghostData.concat()};
+				}
 			}
-			else if(TAS.saveStates[code - 48])
+			else if(state)
 			{
-				TAS.inputField.text = TAS.saveStates[code - 48];
-				TAS.codeObj = TAS.saveStateCodeObj[code - 48];
-				TAS.loadInputs(-1);
+				TAS.inputField.text = state.inputText;
+				TAS.codeObj = state.codeObj;
+				TAS.loadInputs(Key.isDown(17) ? -2 : -1);
 			}
 		}
 		return true;
 	}
 	static function truncateCurArray()
 	{
+		if(TAS.isAtStringEnd())
+		{
+			return undefined;
+		}
 		TAS.inputArray.length = TAS.curIndex + 1;
 		TAS.valueArray.length = TAS.curIndex + 1;
 		TAS.indArray.length = TAS.curIndex + 1;
 		TAS.endIndArray.length = TAS.curIndex + 1;
+		TAS.totalLength = TAS.totalFrame;
+		TAS.specialMode = 0;
 		TAS.valueArray[TAS.curIndex] = TAS.curFrame;
 		if(TAS.curIndex == 0)
 		{
-			if(TAS.indArray[0] == -1)
-			{
-				TAS.curString = "";
-			}
-			else
-			{
-				TAS.curString = TAS.curString.slice(0,TAS.endIndArray[0]);
-			}
+			TAS.curString = TAS.curString.slice(0,TAS.endIndArray[0]);
 		}
 		else
 		{
@@ -443,323 +446,315 @@ class TAS
 		TAS.endIndArray[TAS.curIndex] = TAS.indArray[TAS.curIndex + 1];
 		TAS.curString = newString;
 	}
+	static function getKeyLetterNum(letter)
+	{
+		var num = {w:87,a:65,s:83,d:68,u:38,l:37,v:40,r:39,b:32}[letter.toLowerCase()];
+		if(letter !== letter.toLowerCase())
+		{
+			num *= -1;
+		}
+		return num;
+	}
 	static function parseInputString(str, caretPos, codeObj)
 	{
-		var _loc4_ = ["i"];
-		var _loc5_ = [0];
-		var _loc6_ = [-1];
-		var _loc7_ = [0];
-		var _loc8_ = -1;
-		var _loc9_ = -1;
-		var _loc10_ = str;
-		var _loc11_ = false;
-		if(caretPos >= 0)
-		{
-			_loc11_ = true;
-		}
-		var _loc12_ = -1;
+		var newInputArray = ["i"];
+		var newValueArray = [0];
+		var newIndArray = [-1];
+		var newEndIndArray = [0];
+		var newString = str;
+		var beginningFrames = 0;
+		var barFrame = Infinity;
+		var caretFrame = Infinity;
+		var useCaretPos = caretPos >= 0;
 		if(!codeObj)
 		{
 			codeObj = {};
 		}
-		var _loc13_ = {};
-		var _loc14_ = [0,0,false,[]];
-		var _loc15_ = 0;
-		var _loc16_ = -1;
-		var _loc17_ = "n";
-		var _loc18_ = null;
-		var _loc19_ = 0;
-		while(_loc19_ < _loc10_.length && !TAS.isSymbol(_loc10_.charAt(_loc19_)))
+		var newCodeObj = {};
+		var offsetSetup = [0,0,false,[]];
+		var totalFrame = 0;
+		var commaNum = -1;
+		var prevFullLetter = "n";
+		var firstError = null;
+		var specialMode = 0;
+		var specialModeData = null;
+		var i = -1;
+		while(i < newString.length)
 		{
-			_loc19_ = _loc19_ + 1;
-		}
-		var _loc20_;
-		var _loc21_;
-		var _loc22_;
-		var _loc23_;
-		var _loc24_;
-		var _loc25_;
-		var _loc26_;
-		var _loc27_;
-		var _loc28_;
-		var _loc29_;
-		var _loc30_;
-		var _loc31_;
-		var _loc32_;
-		var _loc33_;
-		while(_loc19_ < _loc10_.length)
-		{
-			_loc20_ = _loc10_.charAt(_loc19_);
-			_loc21_ = _loc19_;
-			_loc22_ = 0;
-			_loc23_ = 0;
-			_loc24_ = "";
-			_loc25_ = false;
-			_loc26_ = "";
-			_loc19_ = _loc19_ + 1;
-			if(_loc20_ === "<")
+			var symbol = i === -1 ? "" : newString.charAt(i);
+			var pos = i;
+			var num = 0;
+			var linNum = 0;
+			var keyLetter = "";
+			var patternDiff = false;
+			var codeStr = "";
+			i++;
+			if(symbol === "<")
 			{
 				try
 				{
-					_loc27_ = Code.parseAngled(_loc10_,_loc19_);
-					_loc19_ = _loc27_[1];
-					_loc25_ = _loc27_[0];
+					var ret = Code.parseAngled(newString,i);
+					i = ret[1];
+					patternDiff = ret[0];
 				}
 				catch(err)
 				{
-					_loc18_;
-					if(!_loc18_)
+					if(!firstError)
 					{
-						_loc18_ = err;
+						firstError = err;
 					}
-					_loc19_ = _loc10_.indexOf(">",_loc19_) + 1;
-					if(_loc19_ === 0)
+					i = newString.indexOf(">",i) + 1;
+					if(i === 0)
 					{
 					}
 				}
 			}
-			else if(_loc20_ === "{")
+			else if(symbol === "{")
 			{
-				_loc28_ = -1;
+				var codeEnd = -1;
 				try
 				{
-					_loc28_ = Code.getCodeBlockEnd(_loc10_,_loc19_);
+					codeEnd = Code.getCodeBlockEnd(newString,i);
 				}
 				catch(err)
 				{
-					_loc18_;
-					if(!_loc18_)
+					if(!firstError)
 					{
-						_loc18_ = err;
+						firstError = err;
 					}
 				}
-				_loc26_ = _loc10_.slice(_loc19_ - 1,_loc28_ + 1);
-				if(codeObj.hasOwnProperty(_loc26_))
+				codeStr = newString.slice(i - 1,codeEnd + 1);
+				if(codeObj.hasOwnProperty(codeStr))
 				{
-					_loc13_[_loc26_] = codeObj[_loc26_];
+					newCodeObj[codeStr] = codeObj[codeStr];
 				}
 				else
 				{
 					try
 					{
-						_loc13_[_loc26_] = Code.compile(_loc10_,_loc19_,_loc28_);
+						newCodeObj[codeStr] = Code.compile(newString,i,codeEnd);
 					}
 					catch(err)
 					{
-						_loc18_;
-						if(!_loc18_)
+						if(!firstError)
 						{
-							_loc18_ = err;
+							firstError = err;
 						}
 					}
 				}
-				_loc19_ = _loc28_ + 1;
+				i = codeEnd + 1;
 			}
-			_loc29_ = _loc19_;
-			while(_loc19_ < _loc10_.length)
+			var endPos = i;
+			while(i < newString.length)
 			{
-				_loc30_ = _loc10_.charAt(_loc19_);
-				if(_loc10_.charCodeAt(_loc19_) >= 48 && _loc10_.charCodeAt(_loc19_) <= 57)
+				var curSymbol = newString.charAt(i);
+				if(Code.isDigit(curSymbol))
 				{
-					_loc22_ = _loc22_ * 10 + _loc10_.charCodeAt(_loc19_) - 48;
-					_loc29_ = _loc19_ + 1;
+					num = num * 10 + curSymbol.charCodeAt(0) - 48;
+					endPos = i + 1;
 				}
-				else if(_loc20_ === "." && !_loc24_)
+				else if(symbol === "." && !keyLetter)
 				{
-					if(TAS.isKeyLetter(_loc30_))
+					if(TAS.isKeyLetter(curSymbol))
 					{
-						_loc24_ = _loc30_;
+						keyLetter = curSymbol;
 					}
-					else if(_loc30_ === ".")
+					else if(curSymbol === ".")
 					{
-						_loc23_ += _loc22_ ? _loc22_ : 1;
-						_loc22_ = 0;
+						linNum += num ? num : 1;
+						num = 0;
 					}
 				}
-				else if(_loc20_ === "," && _loc30_ === ",")
+				else if(symbol === "," && curSymbol === ",")
 				{
-					_loc23_ += _loc22_ ? _loc22_ : 1;
-					_loc22_ = 0;
+					linNum += num ? num : 1;
+					num = 0;
 				}
-				else if(TAS.isSymbol(_loc30_))
+				else if(symbol === "/" && !keyLetter && !num && TAS.isKeyLetter(curSymbol))
 				{
-					break;
+					keyLetter = curSymbol;
+					endPos = i + 1;
 				}
-				_loc19_ = _loc19_ + 1;
-			}
-			if(!TAS.isS(_loc20_,"|<>r") && !_loc22_)
-			{
-				_loc22_ = 1;
-			}
-			_loc22_ += _loc23_;
-			if(_loc20_ == "|")
-			{
-				_loc8_ = _loc4_.length;
-				_loc9_ = _loc22_;
-				_loc19_ -= _loc29_ - _loc21_;
-				caretPos -= _loc29_ - _loc21_;
-				_loc10_ = _loc10_.slice(0,_loc21_) + _loc10_.slice(_loc29_);
-			}
-			else if(TAS.isS(_loc20_,"<>"))
-			{
-				_loc14_.push(_loc15_,_loc22_,_loc25_,[]);
-			}
-			else if(_loc20_ === ".")
-			{
-				if(_loc24_)
+				else if(TAS.isSymbol(curSymbol))
 				{
-					_loc31_ = {w:87,a:65,s:83,d:68,u:38,l:37,v:40,r:39,b:32}[_loc24_.toLowerCase()];
-					if(_loc24_ !== _loc24_.toLowerCase())
-					{
-						_loc31_ *= -1;
-					}
-					Utils.pushO(_loc14_,_loc15_,_loc31_,_loc22_);
-				}
-			}
-			else if(_loc20_ === ",")
-			{
-				_loc16_ = _loc22_;
-			}
-			else
-			{
-				if(_loc4_.length == 1 && _loc6_[0] == -1 && _loc20_ == "r")
-				{
-					_loc5_[0] = _loc22_;
-					_loc6_[0] = _loc21_;
-					_loc7_[0] = _loc29_;
-				}
-				else
-				{
-					if(_loc20_ === "{")
-					{
-						_loc4_.push(_loc26_);
-					}
-					else
-					{
-						_loc4_.push(_loc20_);
-					}
-					_loc5_.push(_loc22_);
-					_loc6_.push(_loc21_);
-					_loc7_.push(_loc29_);
-				}
-				if(_loc12_ == -1 && caretPos < _loc29_)
-				{
-					_loc12_ = Math.max(0,_loc4_.length - 2);
-				}
-				if(TAS.isFullLetter(_loc20_))
-				{
-					if(_loc16_ !== -1)
-					{
-						if(_loc17_ === "p")
-						{
-							if(_loc20_ !== "p")
-							{
-								Utils.pushO(_loc14_,_loc15_,6,_loc16_);
-							}
-						}
-						else if(_loc20_ === "p")
-						{
-							Utils.pushO(_loc14_,_loc15_,7,_loc16_);
-						}
-						else
-						{
-							_loc32_ = [];
-							_loc33_ = 0;
-							while(_loc33_ < 2)
-							{
-								_loc31_ = "nadwqesADWQE".indexOf([_loc17_,_loc20_][_loc33_]);
-								_loc32_.push(_loc31_ % 3 - 1,_loc31_ % 6 >= 3,_loc31_ >= 6);
-								_loc33_ = _loc33_ + 1;
-							}
-							_loc33_ = 0;
-							while(_loc33_ < 3)
-							{
-								if(_loc32_[_loc33_] !== _loc32_[3 + _loc33_])
-								{
-									Utils.pushO(_loc14_,_loc15_,_loc33_ ? 2 * _loc33_ + (_loc32_[3 + _loc33_] ? 1 : 0) : _loc32_[3 + _loc33_],_loc16_);
-								}
-								_loc33_ = _loc33_ + 1;
-							}
-						}
-						_loc16_ = -1;
-					}
-					_loc17_ = _loc20_;
-					_loc15_ += _loc22_;
-				}
-			}
-		}
-		var _loc34_;
-		if(TAS.isSubLetter(_loc4_[_loc4_.length - 1]))
-		{
-			_loc34_ = _loc7_[_loc7_.length - 1];
-			_loc4_.push("n");
-			_loc5_.push(1);
-			_loc6_.push(_loc34_);
-			_loc7_.push(_loc34_ + 1);
-			_loc10_ = _loc10_.slice(0,_loc34_) + "n" + _loc10_.slice(_loc34_);
-		}
-		if(_loc11_)
-		{
-			if(_loc12_ == -1)
-			{
-				_loc8_ = _loc4_.length - 1;
-			}
-			else
-			{
-				_loc8_ = _loc12_;
-			}
-			_loc9_ = _loc5_[_loc8_];
-		}
-		else if(_loc8_ == -1 || _loc8_ == _loc4_.length)
-		{
-			_loc8_ = _loc4_.length - 1;
-			_loc9_ = _loc5_[_loc8_];
-		}
-		else if(_loc9_ == 0)
-		{
-			_loc8_ = _loc8_ - 1;
-			_loc9_ = _loc5_[_loc8_];
-		}
-		else
-		{
-			_loc9_ = Math.min(_loc9_,_loc5_[_loc8_]);
-		}
-		if(TAS.isSubLetter(_loc4_[_loc8_]))
-		{
-			while(TAS.isSubLetter(_loc4_[_loc8_]))
-			{
-				_loc8_ = _loc8_ - 1;
-			}
-			_loc9_ = _loc5_[_loc8_];
-		}
-		return {inputArray:_loc4_,valueArray:_loc5_,indArray:_loc6_,endIndArray:_loc7_,curString:_loc10_,curIndex:_loc8_,curFrame:_loc9_,offsetSetup:_loc14_,err:_loc18_,codeObj:_loc13_};
-	}
-	static function loadInputs(caretPos)
-	{
-		var _loc2_ = TAS.parseInputString(TAS.inputField.text,caretPos,TAS.codeObj);
-		var _loc3_ = true;
-		if(TAS.curIndex == _loc2_.curIndex && TAS.curFrame == _loc2_.curFrame)
-		{
-			i = 0;
-			while(i < _loc2_.curIndex)
-			{
-				if(TAS.inputArray[i] != _loc2_.inputArray[i] || TAS.valueArray[i] != _loc2_.valueArray[i])
-				{
-					_loc3_ = false;
 					break;
 				}
 				i++;
 			}
-			if(TAS.inputArray[_loc2_.curIndex] != _loc2_.inputArray[_loc2_.curIndex])
+			if(!TAS.isS(symbol,"|<>r/") && !num)
 			{
-				_loc3_ = false;
+				num = 1;
+			}
+			num += linNum;
+			if(symbol === "")
+			{
+				beginningFrames = Math.min(num,109);
+				totalFrame = - beginningFrames;
+				newEndIndArray[0] = endPos;
+			}
+			else if(symbol == "|")
+			{
+				barFrame = totalFrame + num;
+				i -= endPos - pos;
+				caretPos -= endPos - pos;
+				newString = newString.slice(0,pos) + newString.slice(endPos);
+				specialMode = 0;
+			}
+			else if(symbol === "/")
+			{
+				if(keyLetter)
+				{
+					barFrame = totalFrame;
+					specialMode = 2;
+					specialModeData = [keyLetter,totalFrame];
+				}
+				else
+				{
+					barFrame = totalFrame - num;
+					specialMode = 1;
+					specialModeData = [newInputArray.length - 1,totalFrame];
+				}
+				i -= endPos - pos;
+				caretPos -= endPos - pos;
+				newString = newString.slice(0,pos) + newString.slice(endPos);
+			}
+			else if(TAS.isS(symbol,"<>"))
+			{
+				offsetSetup.push(totalFrame,num,patternDiff,[]);
+			}
+			else if(symbol === ".")
+			{
+				if(keyLetter)
+				{
+					Utils.pushO(offsetSetup,totalFrame,TAS.getKeyLetterNum(keyLetter),num);
+				}
+			}
+			else if(symbol === ",")
+			{
+				commaNum = num;
+			}
+			else
+			{
+				if(newInputArray.length == 1 && newIndArray[0] == -1 && symbol == "r")
+				{
+					newValueArray[0] = num;
+					newIndArray[0] = pos;
+					newEndIndArray[0] = endPos;
+				}
+				else
+				{
+					if(symbol === "{")
+					{
+						newInputArray.push(codeStr);
+					}
+					else
+					{
+						newInputArray.push(symbol);
+					}
+					newValueArray.push(num);
+					newIndArray.push(pos);
+					newEndIndArray.push(endPos);
+				}
+				if(caretFrame === Infinity && caretPos < endPos)
+				{
+					caretFrame = totalFrame;
+				}
+				if(TAS.isFullLetter(symbol))
+				{
+					if(commaNum !== -1)
+					{
+						if(prevFullLetter === "p")
+						{
+							if(symbol !== "p")
+							{
+								Utils.pushO(offsetSetup,totalFrame,6,commaNum);
+							}
+						}
+						else if(symbol === "p")
+						{
+							Utils.pushO(offsetSetup,totalFrame,7,commaNum);
+						}
+						else
+						{
+							var inpStates = [];
+							var j = 0;
+							while(j < 2)
+							{
+								var letterNum = "nadwqesADWQE".indexOf([prevFullLetter,symbol][j]);
+								inpStates.push(letterNum % 3 - 1,letterNum % 6 >= 3,letterNum >= 6);
+								j++;
+							}
+							var j = 0;
+							while(j < 3)
+							{
+								if(inpStates[j] !== inpStates[3 + j])
+								{
+									Utils.pushO(offsetSetup,totalFrame,j ? 2 * j + (inpStates[3 + j] ? 1 : 0) : inpStates[3 + j],commaNum);
+								}
+								j++;
+							}
+						}
+						commaNum = -1;
+					}
+					prevFullLetter = symbol;
+					totalFrame += num;
+				}
+			}
+		}
+		if(TAS.isSubLetter(newInputArray[newInputArray.length - 1]))
+		{
+			var insertionPoint = newEndIndArray[newEndIndArray.length - 1];
+			newInputArray.push("n");
+			newValueArray.push(1);
+			newIndArray.push(insertionPoint);
+			newEndIndArray.push(insertionPoint + 1);
+			newString = newString.slice(0,insertionPoint) + "n" + newString.slice(insertionPoint);
+			totalFrame++;
+		}
+		var newFrame;
+		if(useCaretPos)
+		{
+			newFrame = caretFrame;
+			specialMode = 0;
+		}
+		else
+		{
+			newFrame = barFrame;
+		}
+		newFrame = Math.max(- beginningFrames,Math.min(totalFrame,newFrame));
+		return {inputArray:newInputArray,valueArray:newValueArray,indArray:newIndArray,endIndArray:newEndIndArray,curString:newString,totalFrame:newFrame,totalLength:totalFrame,beginningFrames:beginningFrames,offsetSetup:offsetSetup,err:firstError,codeObj:newCodeObj,specialMode:specialMode,specialModeData:specialModeData};
+	}
+	static function loadInputs(caretPos)
+	{
+		var obj = TAS.parseInputString(TAS.inputField.text,caretPos,TAS.codeObj);
+		if(caretPos === -2)
+		{
+			obj.totalFrame = Math.max(- obj.beginningFrames,Math.min(TAS.totalFrame,obj.totalLength));
+		}
+		var areEqual = true;
+		if(TAS.totalFrame <= obj.totalFrame && TAS.beginningFrames === obj.beginningFrames && TAS.valueArray[0] === obj.valueArray[0])
+		{
+			var totalFrame = - TAS.beginningFrames;
+			var ind = 1;
+			while(totalFrame < TAS.totalFrame)
+			{
+				if(TAS.isFullLetter(TAS.inputArray[ind]))
+				{
+					totalFrame += TAS.valueArray[ind];
+				}
+				if(TAS.inputArray[ind] != obj.inputArray[ind] || TAS.valueArray[ind] != obj.valueArray[ind] && !(totalFrame >= TAS.totalFrame && totalFrame - TAS.valueArray[ind] + obj.valueArray[ind] >= TAS.totalFrame))
+				{
+					areEqual = false;
+					break;
+				}
+				ind++;
 			}
 		}
 		else
 		{
-			_loc3_ = false;
+			areEqual = false;
 		}
-		TAS.updateBase(_loc2_,_loc3_);
+		TAS.updateBase(obj,areEqual);
 	}
 	static function updateBase(obj, areEqual)
 	{
@@ -769,18 +764,30 @@ class TAS
 		TAS.endIndArray = obj.endIndArray;
 		TAS.codeObj = obj.codeObj;
 		TAS.curString = obj.curString;
-		TAS.curIndex = obj.curIndex;
-		TAS.curFrame = obj.curFrame;
+		TAS.totalLength = obj.totalLength;
+		TAS.beginningFrames = obj.beginningFrames;
+		TAS.specialMode = obj.specialMode;
+		TAS.specialModeData = obj.specialModeData;
+		if(TAS.specialMode === 1)
+		{
+			TAS.write = false;
+		}
+		else if(TAS.specialMode === 2)
+		{
+			TAS.frozen = true;
+		}
 		if(!areEqual)
 		{
-			TAS.runBack = true;
+			TAS.delayedFun = [TAS.updateError,obj.err,TAS.inputField];
+			TAS.targetFrame = obj.totalFrame;
 			_root.tt.doTween("reload");
 		}
 		else
 		{
-			TAS.updateText();
+			TAS.skipToFrame(obj.totalFrame);
+			TAS.textRefresh = true;
+			TAS.updateError(obj.err,TAS.inputField);
 		}
-		TAS.updateError(obj.err,TAS.inputField);
 	}
 	static function loadOffsets()
 	{
@@ -797,8 +804,8 @@ class TAS
 		TAS.offsetCodeObj = obj.codeObj;
 		if(TAS.offsetSetup.length > 4)
 		{
-			obj.curIndex = obj.inputArray.length - 1;
-			obj.curFrame = obj.valueArray[obj.curIndex];
+			obj.totalFrame = obj.totalLength;
+			obj.specialMode = 0;
 			TAS.initOffsetInd = 4;
 			TAS.updateBase(obj,false);
 		}
@@ -872,38 +879,45 @@ class TAS
 		}
 		w.text = w.text.slice(0,-1);
 	}
+	static function getCaretPosAndString()
+	{
+		if(TAS.specialMode === 1)
+		{
+			return [TAS.endIndArray[TAS.specialModeData[0]],"/" + (TAS.specialModeData[1] - TAS.totalFrame)];
+		}
+		if(TAS.specialMode === 2)
+		{
+			return [TAS.endIndArray[TAS.curIndex],"/" + TAS.specialModeData[0]];
+		}
+		if(TAS.isAtStringEnd())
+		{
+			return [TAS.curString.length,""];
+		}
+		if(TAS.curFrame === TAS.valueArray[TAS.curIndex])
+		{
+			return [TAS.indArray[TAS.curIndex + 1],"|"];
+		}
+		return [TAS.indArray[TAS.curIndex],"|" + TAS.curFrame];
+	}
 	static function updateText(forced)
 	{
+		TAS.textRefresh = false;
 		if(!forced && (!Windows.clip.inputWindow._visible || !TAS.inputField._visible))
 		{
 			return undefined;
 		}
-		var _loc2_;
-		if(TAS.isAtStringEnd())
-		{
-			TAS.inputField.text = TAS.curString;
-			_loc2_ = TAS.inputField.textWidth;
-		}
-		else if(TAS.curFrame == TAS.valueArray[TAS.curIndex])
-		{
-			TAS.inputField.text = TAS.curString.slice(0,TAS.indArray[TAS.curIndex + 1]);
-			_loc2_ = TAS.inputField.textWidth;
-			TAS.inputField.text += "|" + TAS.curString.slice(TAS.indArray[TAS.curIndex + 1]);
-		}
-		else
-		{
-			TAS.inputField.text = TAS.curString.slice(0,TAS.indArray[TAS.curIndex]);
-			_loc2_ = TAS.inputField.textWidth;
-			TAS.inputField.text += "|" + TAS.curFrame + TAS.curString.slice(TAS.indArray[TAS.curIndex]);
-		}
+		var data = TAS.getCaretPosAndString();
+		var firstHalf = TAS.curString.slice(0,data[0]);
+		TAS.inputField.text = firstHalf + data[1] + TAS.curString.slice(data[0]);
 		if(Utils.autoScroll)
 		{
-			TAS.inputField.hscroll = (_loc2_ - 225) * TAS.inputField.maxhscroll / (TAS.inputField.textWidth - 395);
+			Windows.clip.inputWindow.testField.text = firstHalf;
+			TAS.inputField.hscroll = (Windows.clip.inputWindow.testField.textWidth - 225) * TAS.inputField.maxhscroll / (TAS.inputField.textWidth - 395);
 		}
 	}
 	static function updateError(err, field)
 	{
-		var _loc3_ = Windows.clip.inputWindow;
+		var w = Windows.clip.inputWindow;
 		if(field === TAS.inputField)
 		{
 			TAS.inputFieldError = err;
@@ -912,27 +926,23 @@ class TAS
 		{
 			TAS.offsetFieldError = err;
 		}
-		var _loc4_;
 		if(err && Selection.getFocus() === String(field))
 		{
-			_loc4_ = err.pos;
-			if(field === TAS.inputField && !TAS.isAtStringEnd())
+			var pos = err.pos;
+			if(field === TAS.inputField)
 			{
-				if(TAS.curFrame === TAS.valueArray[TAS.curIndex])
+				var caretPosAndString = TAS.getCaretPosAndString();
+				if(pos >= caretPosAndString[0])
 				{
-					_loc4_ += _loc4_ >= TAS.indArray[TAS.curIndex + 1] ? 1 : 0;
-				}
-				else
-				{
-					_loc4_ += _loc4_ >= TAS.indArray[TAS.curIndex] ? 1 + String(TAS.curFrame).length : 0;
+					pos += caretPosAndString[1].length;
 				}
 			}
-			Selection.setSelection(_loc4_,_loc4_);
+			Selection.setSelection(pos,pos);
 		}
-		var _loc5_ = TAS.offsetFieldError || TAS.inputFieldError;
-		if(_loc5_)
+		var activeErr = TAS.offsetFieldError || TAS.inputFieldError;
+		if(activeErr)
 		{
-			_loc3_.obj.headerOptions = ["Error: " + _loc5_.message,TAS.offsetFieldError ? function(w)
+			w.obj.headerOptions = ["Error: " + activeErr.message,TAS.offsetFieldError ? function(w)
 			{
 				Selection.setFocus(TAS.offsetField);
 				Selection.setSelection(TAS.offsetFieldError.pos,TAS.offsetFieldError.pos);
@@ -941,11 +951,11 @@ class TAS
 				Selection.setFocus(TAS.inputField);
 				TAS.loadInputs(-1);
 			}];
-			_loc3_.updateMainField(false);
+			w.updateMainField(false);
 		}
-		else if(delete _loc3_.obj.headerOptions)
+		else if(delete w.obj.headerOptions)
 		{
-			_loc3_.updateMainField(false);
+			w.updateMainField(false);
 		}
 		field.backgroundColor = err ? 16764108 : 16777215;
 	}
@@ -959,41 +969,52 @@ class TAS
 	}
 	static function hitOffset(inp)
 	{
-		var _loc2_ = TAS.offsetSetup[TAS.curPattern];
-		if(!_loc2_)
+		if(TAS.specialMode === 2)
+		{
+			if(TAS.totalFrame !== TAS.specialModeData[1])
+			{
+				TAS.specialMode = 0;
+			}
+			else if(inp === TAS.getKeyLetterNum(TAS.specialModeData[0]))
+			{
+				TAS.write = true;
+				TAS.frozen = false;
+				TAS.specialMode = 0;
+			}
+		}
+		var curArr = TAS.offsetSetup[TAS.curPattern];
+		if(!curArr)
 		{
 			return undefined;
 		}
-		var _loc3_ = false;
-		var _loc4_ = TAS.curPatternInd;
-		var _loc5_;
-		var _loc6_;
-		while(_loc4_ < _loc2_.length)
+		var somethingChanged = false;
+		var i = TAS.curPatternInd;
+		while(i < curArr.length)
 		{
-			_loc5_ = TAS.curPatternFrame + _loc2_[_loc4_];
-			_loc6_ = _loc2_[_loc4_ + 2];
-			if(TAS.totalFrame > _loc5_ + _loc6_ + 4)
+			var curTotalFrame = TAS.curPatternFrame + curArr[i];
+			var curNum = curArr[i + 2];
+			if(TAS.totalFrame > curTotalFrame + curNum + 4)
 			{
-				if(_loc4_ === TAS.curPatternInd)
+				if(i === TAS.curPatternInd)
 				{
 					TAS.curPatternInd += 4;
 				}
 			}
 			else
 			{
-				if(TAS.totalFrame < _loc5_ - 5)
+				if(TAS.totalFrame < curTotalFrame - 5)
 				{
 					break;
 				}
-				if(_loc2_[_loc4_ + 1] === inp)
+				if(curArr[i + 1] === inp)
 				{
-					_loc2_[_loc4_ + 3] |= 1 << TAS.totalFrame - _loc5_ + 5;
-					_loc3_ = true;
+					curArr[i + 3] |= 1 << TAS.totalFrame - curTotalFrame + 5;
+					somethingChanged = true;
 				}
 			}
-			_loc4_ += 4;
+			i += 4;
 		}
-		if(_loc3_)
+		if(somethingChanged)
 		{
 			TAS.updateOffsetBars();
 		}
@@ -1011,14 +1032,11 @@ class TAS
 	}
 	static function checkKeys()
 	{
-		if(TAS.neutralPlayback)
+		if(TAS.totalFrame < - TAS.beginningFrames)
 		{
+			TAS.totalFrame++;
 			return undefined;
 		}
-		var _loc2_;
-		var _loc4_;
-		var _loc5_;
-		var _loc6_;
 		if(TAS.initOffsetInd !== -1)
 		{
 			while(TAS.initOffsetInd < TAS.offsetSetup.length && (TAS.offsetSetup[TAS.initOffsetInd] < TAS.totalFrame || !TAS.offsetSetup[TAS.initOffsetInd + 3].length))
@@ -1029,12 +1047,12 @@ class TAS
 			{
 				if(TAS.offsetSetup[TAS.initOffsetInd + 2])
 				{
-					_loc2_ = {};
-					for(var _loc3_ in TAS.offsetSetup[TAS.initOffsetInd + 2])
+					var patternObj = {};
+					for(var prop in TAS.offsetSetup[TAS.initOffsetInd + 2])
 					{
-						_loc2_[_loc3_] = [_root.game.player[_loc3_] + TAS.offsetSetup[TAS.initOffsetInd + 2][_loc3_][0],_root.game.player[_loc3_] + TAS.offsetSetup[TAS.initOffsetInd + 2][_loc3_][1]];
+						patternObj[prop] = [_root.game.player[prop] + TAS.offsetSetup[TAS.initOffsetInd + 2][prop][0],_root.game.player[prop] + TAS.offsetSetup[TAS.initOffsetInd + 2][prop][1]];
 					}
-					TAS.offsetArr.push(_loc2_,TAS.offsetSetup[TAS.initOffsetInd] - TAS.totalFrame,TAS.initOffsetInd + 3);
+					TAS.offsetArr.push(patternObj,TAS.offsetSetup[TAS.initOffsetInd] - TAS.totalFrame,TAS.initOffsetInd + 3);
 				}
 				else
 				{
@@ -1044,75 +1062,63 @@ class TAS
 		}
 		else
 		{
-			_loc4_ = TAS.offsetObj[Utils.currentPlayerString()];
-			if(_loc4_)
+			var curPatternData = TAS.offsetObj[Utils.currentPlayerString()];
+			if(curPatternData)
 			{
-				TAS.updatePattern(_loc4_);
+				TAS.updatePattern(curPatternData);
 			}
 			else
 			{
-				_loc5_ = 0;
-				while(_loc5_ < TAS.offsetArr.length)
+				var i = 0;
+				while(i < TAS.offsetArr.length)
 				{
-					_loc6_ = false;
-					for(_loc3_ in TAS.offsetArr[_loc5_])
+					var failed = false;
+					for(var prop in TAS.offsetArr[i])
 					{
-						if(_root.game.player[_loc3_] < TAS.offsetArr[_loc5_][_loc3_][0] || _root.game.player[_loc3_] > TAS.offsetArr[_loc5_][_loc3_][1])
+						if(_root.game.player[prop] < TAS.offsetArr[i][prop][0] || _root.game.player[prop] > TAS.offsetArr[i][prop][1])
 						{
-							_loc6_ = true;
+							failed = true;
 							break;
 						}
 					}
-					if(!_loc6_)
+					if(!failed)
 					{
-						TAS.updatePattern([TAS.offsetArr[_loc5_ + 1],TAS.offsetArr[_loc5_ + 2]]);
+						TAS.updatePattern([TAS.offsetArr[i + 1],TAS.offsetArr[i + 2]]);
 						break;
 					}
-					_loc5_ += 3;
+					i += 3;
 				}
 			}
 		}
-		var _loc7_;
-		var _loc8_;
-		var _loc9_;
-		var _loc10_;
-		var _loc11_;
-		var _loc12_;
-		var _loc13_;
-		var _loc14_;
-		var _loc15_;
-		var _loc16_;
-		var _loc17_;
-		var _loc18_;
 		if(TAS.write)
 		{
-			_loc7_ = -1;
-			_loc8_ = false;
-			_loc9_ = false;
+			var DIR_PRESSED = -1;
+			var UP_PRESSED = false;
+			var DOWN_PRESSED = false;
 			if(!Utils.foif())
 			{
 				if((Key.isDown(37) || Key.isDown(65)) && (Key.isDown(39) || Key.isDown(68)))
 				{
 					if(com.nitrome.toxic.Global.LAST_DIR_PRESSED == com.nitrome.toxic.Global.LEFT)
 					{
-						_loc7_ = com.nitrome.toxic.Global.LEFT;
+						DIR_PRESSED = com.nitrome.toxic.Global.LEFT;
 					}
 					else if(com.nitrome.toxic.Global.LAST_DIR_PRESSED == com.nitrome.toxic.Global.RIGHT)
 					{
-						_loc7_ = com.nitrome.toxic.Global.RIGHT;
+						DIR_PRESSED = com.nitrome.toxic.Global.RIGHT;
 					}
 				}
 				else if(Key.isDown(37) || Key.isDown(65))
 				{
-					_loc7_ = com.nitrome.toxic.Global.LEFT;
+					DIR_PRESSED = com.nitrome.toxic.Global.LEFT;
 				}
 				else if(Key.isDown(39) || Key.isDown(68))
 				{
-					_loc7_ = com.nitrome.toxic.Global.RIGHT;
+					DIR_PRESSED = com.nitrome.toxic.Global.RIGHT;
 				}
 				else
 				{
-					_loc7_ = -1;
+					DIR_PRESSED = -1;
 				}
 				if(!Key.isDown(38) && !Key.isDown(87))
 				{
@@ -1122,8 +1128,8 @@ class TAS
 				{
 					TAS.DOWN_PRESSED = false;
 				}
-				_loc8_ = TAS.UP_PRESSED;
-				_loc9_ = TAS.DOWN_PRESSED;
+				UP_PRESSED = TAS.UP_PRESSED;
+				DOWN_PRESSED = TAS.DOWN_PRESSED;
 			}
 			if(TAS.override)
 			{
@@ -1133,64 +1139,66 @@ class TAS
 			{
 				TAS.splitCurLetter();
 			}
-			_loc10_ = TAS.curIndex === TAS.inputArray.length - 1;
-			if(!_loc10_)
+			var atEnd = TAS.curIndex === TAS.inputArray.length - 1;
+			var newInputs;
+			var newValues;
+			if(!atEnd)
 			{
-				_loc11_ = [TAS.curIndex + 1,0];
-				_loc12_ = [TAS.curIndex + 1,0];
+				newInputs = [TAS.curIndex + 1,0];
+				newValues = [TAS.curIndex + 1,0];
 			}
 			else
 			{
-				_loc11_ = TAS.inputArray;
-				_loc12_ = TAS.valueArray;
+				newInputs = TAS.inputArray;
+				newValues = TAS.valueArray;
 			}
-			_loc13_ = _loc11_.length;
+			var startLen = newInputs.length;
 			if(TAS.justPause)
 			{
-				_loc8_ = com.nitrome.toxic.Global.UP_PRESSED;
+				UP_PRESSED = com.nitrome.toxic.Global.UP_PRESSED;
 			}
 			if(!TAS.frozen && !com.nitrome.toxic.Global.can_jump)
 			{
-				if((com.nitrome.toxic.Global.UP_PRESSED && !_loc8_) !== TAS.releasedUp)
+				if((com.nitrome.toxic.Global.UP_PRESSED && !UP_PRESSED) !== TAS.releasedUp)
 				{
 					if(TAS.releasedUp)
 					{
-						_loc11_.push("j");
+						newInputs.push("j");
 					}
 					else
 					{
-						_loc11_.push("J");
+						newInputs.push("J");
 					}
-					_loc12_.push(1);
+					newValues.push(1);
 				}
 			}
 			if(TAS.justPlacedBombs > 0)
 			{
-				_loc11_.push("b");
-				_loc12_.push(TAS.justPlacedBombs);
+				newInputs.push("b");
+				newValues.push(TAS.justPlacedBombs);
 			}
 			if(TAS.pressedHit)
 			{
-				_loc11_.push("h");
-				_loc12_.push(1);
+				newInputs.push("h");
+				newValues.push(1);
 			}
 			if(com.nitrome.toxic.Global.game_paused === TAS.justPause && TAS.pressedPause)
 			{
 				if(TAS.justPlacedBombs <= 0 || !TAS.justPause)
 				{
-					_loc11_.push("P");
-					_loc12_.push(1);
+					newInputs.push("P");
+					newValues.push(1);
 				}
 			}
-			_loc14_ = "nadwqesADWQE".charAt(_loc7_ + 1 + int(_loc8_) * 3 + int(_loc9_) * 6);
+			var letter = "nadwqesADWQE".charAt(DIR_PRESSED + 1 + int(UP_PRESSED) * 3 + int(DOWN_PRESSED) * 6);
 			if(TAS.justPause)
 			{
-				_loc14_ = "p";
+				letter = "p";
 			}
-			_loc15_ = TAS.endIndArray[TAS.curIndex];
-			_loc16_ = TAS.curString.slice(_loc15_);
-			TAS.curString = TAS.curString.slice(0,_loc15_);
-			if(_loc11_.length === _loc13_ && _loc14_ === TAS.inputArray[TAS.curIndex])
+			var endInd = TAS.endIndArray[TAS.curIndex];
+			var endString = TAS.curString.slice(endInd);
+			TAS.curString = TAS.curString.slice(0,endInd);
+			if(newInputs.length === startLen && letter === TAS.inputArray[TAS.curIndex])
 			{
 				TAS.valueArray[TAS.curIndex]++;
 				TAS.curString = TAS.curString.slice(0,TAS.indArray[TAS.curIndex]) + TAS.inputArray[TAS.curIndex] + TAS.valueArray[TAS.curIndex];
@@ -1198,62 +1206,65 @@ class TAS
 			}
 			else
 			{
-				_loc11_.push(_loc14_);
-				_loc12_.push(1);
-				if(!_loc10_)
+				newInputs.push(letter);
+				newValues.push(1);
+				if(!atEnd)
 				{
-					TAS.inputArray.splice.apply(TAS.inputArray,_loc11_);
-					TAS.valueArray.splice.apply(TAS.valueArray,_loc12_);
+					TAS.inputArray.splice.apply(TAS.inputArray,newInputs);
+					TAS.valueArray.splice.apply(TAS.valueArray,newValues);
 				}
-				if(!_loc10_)
+				var newInds;
+				var newEndInds;
+				if(!atEnd)
 				{
-					_loc17_ = [TAS.curIndex + 1,0];
-					_loc18_ = [TAS.curIndex + 1,0];
+					newInds = [TAS.curIndex + 1,0];
+					newEndInds = [TAS.curIndex + 1,0];
 				}
 				else
 				{
-					_loc17_ = TAS.indArray;
-					_loc18_ = TAS.endIndArray;
+					newInds = TAS.indArray;
+					newEndInds = TAS.endIndArray;
 				}
-				_loc5_ = _loc13_;
-				while(_loc5_ < _loc11_.length)
+				var i = startLen;
+				while(i < newInputs.length)
 				{
-					_loc17_.push(TAS.curString.length);
-					TAS.curString += _loc11_[_loc5_] + TAS.compact(_loc12_[_loc5_]);
-					_loc18_.push(TAS.curString.length);
-					_loc5_ = _loc5_ + 1;
+					newInds.push(TAS.curString.length);
+					TAS.curString += newInputs[i] + TAS.compact(newValues[i]);
+					newEndInds.push(TAS.curString.length);
+					i++;
 				}
-				if(!_loc10_)
+				if(!atEnd)
 				{
-					TAS.indArray.splice.apply(TAS.indArray,_loc17_);
-					TAS.endIndArray.splice.apply(TAS.endIndArray,_loc18_);
+					TAS.indArray.splice.apply(TAS.indArray,newInds);
+					TAS.endIndArray.splice.apply(TAS.endIndArray,newEndInds);
 				}
 			}
-			if(!_loc10_)
+			if(!atEnd)
 			{
-				_loc5_ = TAS.curIndex + _loc11_.length - 1;
-				while(_loc5_ < TAS.indArray.length)
+				var i = TAS.curIndex + newInputs.length - 1;
+				while(i < TAS.indArray.length)
 				{
-					TAS.indArray[_loc5_] += TAS.curString.length - _loc15_;
-					TAS.endIndArray[_loc5_] += TAS.curString.length - _loc15_;
-					_loc5_ = _loc5_ + 1;
+					TAS.indArray[i] += TAS.curString.length - endInd;
+					TAS.endIndArray[i] += TAS.curString.length - endInd;
+					i++;
 				}
 			}
-			TAS.curString += _loc16_;
+			TAS.curString += endString;
+			TAS.totalLength++;
+			TAS.specialMode = 0;
 		}
-		var _loc19_ = "n";
+		var prevFullLetter = "n";
 		if(TAS.isFullLetter(TAS.inputArray[TAS.curIndex]))
 		{
-			_loc19_ = TAS.inputArray[TAS.curIndex];
+			prevFullLetter = TAS.inputArray[TAS.curIndex];
 		}
 		if(TAS.curFrame >= TAS.valueArray[TAS.curIndex])
 		{
 			TAS.curIndex++;
 			TAS.curFrame = 0;
 		}
-		var _loc20_ = false;
+		var didntReleaseUp = false;
 		TAS.bombsThrownThisFrame = 0;
-		var _loc21_;
 		while(TAS.isSubLetter(TAS.inputArray[TAS.curIndex]))
 		{
 			switch(TAS.inputArray[TAS.curIndex])
@@ -1264,12 +1275,12 @@ class TAS
 						_root.game.unpauseGame();
 						_root.popup_holder.hidePopUp();
 					}
-					_loc5_ = 0;
-					while(_loc5_ < TAS.valueArray[TAS.curIndex])
+					var i = 0;
+					while(i < TAS.valueArray[TAS.curIndex])
 					{
 						_root.game.layBomb();
 						TAS.bombsThrownThisFrame++;
-						_loc5_ = _loc5_ + 1;
+						i++;
 					}
 					break;
 				case "r":
@@ -1279,7 +1290,7 @@ class TAS
 					com.nitrome.toxic.Global.can_jump = true;
 					break;
 				case "J":
-					_loc20_ = true;
+					didntReleaseUp = true;
 					break;
 				case "P":
 					_root.popup_holder.displayPopUp("game_paused");
@@ -1289,31 +1300,30 @@ class TAS
 					TAS.queuedHit = true;
 					break;
 				default:
-					if((_loc21_ = TAS.inputArray[TAS.curIndex]).charAt(0) === "{")
+					var c;
+					if((c = TAS.inputArray[TAS.curIndex]).charAt(0) === "{")
 					{
-						_loc5_ = 0;
-						while(_loc5_ < TAS.valueArray[TAS.curIndex])
+						var i = 0;
+						while(i < TAS.valueArray[TAS.curIndex])
 						{
-							Code.interpret(TAS.codeObj[_loc21_]);
-							_loc5_ = _loc5_ + 1;
+							Code.interpret(TAS.codeObj[c]);
+							i++;
 						}
 					}
 			}
 			TAS.curIndex++;
 			TAS.curFrame = 0;
 		}
-		_loc14_ = TAS.inputArray[TAS.curIndex];
-		var _loc22_ = TAS.write && _loc19_ !== _loc14_;
-		var _loc23_;
-		var _loc24_;
-		if(_loc14_ == "p")
+		var letter = TAS.inputArray[TAS.curIndex];
+		var doOffsets = TAS.write && prevFullLetter !== letter;
+		if(letter == "p")
 		{
 			if(!com.nitrome.toxic.Global.game_paused)
 			{
 				_root.popup_holder.displayPopUp("game_paused");
 				_root.game.pauseGame();
 			}
-			if(_loc22_)
+			if(doOffsets)
 			{
 				TAS.hitOffset(7);
 			}
@@ -1325,32 +1335,32 @@ class TAS
 				_root.game.unpauseGame();
 				_root.popup_holder.hidePopUp();
 			}
-			_loc23_ = "nadwqesADWQE".indexOf(_loc14_);
-			com.nitrome.toxic.Global.DIR_PRESSED = _loc23_ % 3 - 1;
-			if(com.nitrome.toxic.Global.UP_PRESSED && _loc23_ % 6 < 3 && !_loc20_)
+			var num = "nadwqesADWQE".indexOf(letter);
+			com.nitrome.toxic.Global.DIR_PRESSED = num % 3 - 1;
+			if(com.nitrome.toxic.Global.UP_PRESSED && num % 6 < 3 && !didntReleaseUp)
 			{
 				com.nitrome.toxic.Global.can_jump = true;
 			}
-			com.nitrome.toxic.Global.UP_PRESSED = _loc23_ % 6 >= 3;
-			com.nitrome.toxic.Global.DOWN_PRESSED = _loc23_ >= 6;
-			if(_loc22_)
+			com.nitrome.toxic.Global.UP_PRESSED = num % 6 >= 3;
+			com.nitrome.toxic.Global.DOWN_PRESSED = num >= 6;
+			if(doOffsets)
 			{
-				if(_loc19_ === "p")
+				if(prevFullLetter === "p")
 				{
 					TAS.hitOffset(6);
 				}
 				else
 				{
-					_loc24_ = "nadwqesADWQE".indexOf(_loc19_);
-					if(_loc24_ % 3 - 1 !== com.nitrome.toxic.Global.DIR_PRESSED)
+					var prevNum = "nadwqesADWQE".indexOf(prevFullLetter);
+					if(prevNum % 3 - 1 !== com.nitrome.toxic.Global.DIR_PRESSED)
 					{
 						TAS.hitOffset(com.nitrome.toxic.Global.DIR_PRESSED);
 					}
-					if(_loc24_ % 6 >= 3 !== com.nitrome.toxic.Global.UP_PRESSED)
+					if(prevNum % 6 >= 3 !== com.nitrome.toxic.Global.UP_PRESSED)
 					{
 						TAS.hitOffset(com.nitrome.toxic.Global.UP_PRESSED ? 3 : 2);
 					}
-					if(_loc24_ >= 6 !== com.nitrome.toxic.Global.DOWN_PRESSED)
+					if(prevNum >= 6 !== com.nitrome.toxic.Global.DOWN_PRESSED)
 					{
 						TAS.hitOffset(com.nitrome.toxic.Global.DOWN_PRESSED ? 5 : 4);
 					}
@@ -1359,9 +1369,10 @@ class TAS
 		}
 		TAS.curFrame++;
 		TAS.totalFrame++;
-		if(TAS.fastPlayback && TAS.curIndex == TAS.targetIndex && TAS.curFrame == TAS.targetFrame)
+		if(TAS.specialMode === 1 && TAS.totalFrame >= TAS.specialModeData[1])
 		{
-			TAS.fastPlayback = false;
+			TAS.specialMode = 0;
+			TAS.write = true;
 		}
 	}
 	static function performQueuedHit()
@@ -1380,73 +1391,129 @@ class TAS
 		TAS.justPlacedBombs = 0;
 		TAS.queuedHit = false;
 	}
+	static function addGhost(num)
+	{
+		var ghostName = "g" + num;
+		_root.game.ghost_holder.attachMovie("player",ghostName,num);
+		_root.game.ghost_holder[ghostName]._alpha = 30;
+		TAS.updateGhost(ghostName);
+	}
+	static function updateGhosts()
+	{
+		if(TAS.totalFrame < 0)
+		{
+			return undefined;
+		}
+		var p = _root.game.player;
+		TAS.ghostData.push(p._x,p._y,p._currentframe,p.anim._currentframe);
+		if(TAS.fastPlayback)
+		{
+			return undefined;
+		}
+		for(var ghostName in _root.game.ghost_holder)
+		{
+			TAS.updateGhost(ghostName);
+		}
+	}
+	static function updateGhost(ghostName)
+	{
+		var ghost = _root.game.ghost_holder[ghostName];
+		var data = TAS.saveStates[ghostName.slice(1)].ghostData;
+		var ind = Math.min(TAS.totalFrame * 4,data.length - 4);
+		if(ind >= 0)
+		{
+			ghost._x = data[ind];
+			ghost._y = data[ind + 1];
+			ghost.gotoAndStop(data[ind + 2]);
+			ghost.anim.gotoAndStop(data[ind + 3]);
+		}
+		else
+		{
+			ghost.stop();
+			ghost.anim.stop();
+		}
+	}
+	static function skipToFrame(frame)
+	{
+		if(frame <= TAS.totalFrame)
+		{
+			return false;
+		}
+		var oldWrite = TAS.write;
+		TAS.write = false;
+		TAS.fastPlayback = true;
+		while(TAS.totalFrame < frame - 1)
+		{
+			Main.gameUpdate();
+		}
+		TAS.fastPlayback = false;
+		Main.gameUpdate();
+		Main.stopAll();
+		TAS.write = oldWrite;
+		return true;
+	}
 	static function levelInit()
 	{
 		TAS.resetInputCheckers();
-		var _loc2_ = [];
-		for(var _loc3_ in _root.game.acid_holder)
+		var bubArray = [];
+		for(var j in _root.game.acid_holder)
 		{
-			_loc2_.push(_root.game.acid_holder[_loc3_]);
+			bubArray.push(_root.game.acid_holder[j]);
 		}
-		var _loc4_;
-		for(_loc3_ in _loc2_)
+		for(var j in bubArray)
 		{
-			_loc4_ = _loc2_[_loc3_];
-			if(_loc4_.bubbles)
+			var cur = bubArray[j];
+			if(cur.bubbles)
 			{
-				Main._gotoAndPlay(_loc4_.bubbles,RNG._random(267) + 1);
+				Main._gotoAndPlay(cur.bubbles,RNG._random(267) + 1);
 			}
-			else if(_loc4_.anim)
+			else if(cur.anim)
 			{
-				Main._gotoAndPlay(_loc4_.anim,RNG._random(267) + 1);
+				Main._gotoAndPlay(cur.anim,RNG._random(267) + 1);
 			}
 		}
 		com.nitrome.toxic.Global.can_jump = true;
-		var _loc5_ = TAS.write;
-		TAS.write = false;
-		TAS.targetIndex = TAS.curIndex;
-		TAS.targetFrame = TAS.curFrame;
+		com.nitrome.toxic.Global.UP_PRESSED = false;
 		TAS.curIndex = 0;
 		TAS.curFrame = TAS.valueArray[0];
-		TAS.fastPlayback = true;
+		TAS.totalFrame = -109;
+		TAS.ghostData = [];
+		var i = 0;
+		while(i < 10)
+		{
+			if(TAS.ghostVisible[i])
+			{
+				TAS.addGhost(i);
+			}
+			i++;
+		}
 		TAS.curPattern = 3;
 		TAS.curPatternInd = 0;
 		TAS.curPatternFrame = 0;
-		var _loc6_;
-		if(Utils.skipBeginning)
+		if(TAS.targetFrame !== - Infinity)
 		{
-			TAS.neutralPlayback = true;
-			_loc6_ = 0;
-			while(_loc6_ < 109)
-			{
-				Main.gameUpdate();
-				_loc6_ = _loc6_ + 1;
-			}
-			TAS.neutralPlayback = false;
+			TAS.skipToFrame(TAS.targetFrame);
+			TAS.targetFrame = - Infinity;
 		}
-		TAS.totalFrame = 0;
-		if(TAS.runBack)
+		else
 		{
-			TAS.runBack = false;
-			while(TAS.curIndex < TAS.targetIndex || TAS.curIndex == TAS.targetIndex && TAS.curFrame < TAS.targetFrame)
-			{
-				Main.gameUpdate();
-			}
+			TAS.skipToFrame(- TAS.beginningFrames);
 		}
-		TAS.fastPlayback = false;
-		TAS.targetIndex = -1;
-		TAS.write = _loc5_;
-		TAS.updateText();
 		if(TAS.initOffsetInd === -1)
 		{
-			_loc6_ = 3;
-			while(_loc6_ < TAS.offsetSetup.length)
+			var i = 3;
+			while(i < TAS.offsetSetup.length)
 			{
-				TAS.clearOffsets(TAS.offsetSetup[_loc6_]);
-				_loc6_ += 4;
+				TAS.clearOffsets(TAS.offsetSetup[i]);
+				i += 4;
 			}
 		}
 		TAS.initOffsetInd = -1;
 		TAS.updateOffsetBars();
+		if(TAS.delayedFun)
+		{
+			Code.execute(TAS.delayedFun);
+			TAS.delayedFun = null;
+		}
 	}
 }
